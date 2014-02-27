@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>MyFirstTest</title>
+    <link rel="stylesheet" href="myfirsttest.css">
+  </head>
+  <body>
+    <h1>My first test</h1>
+    
+    <p>Beginning drawing bezier curves with Dart !</p>
+    
+    <div id="container">
+      <canvas id="canvas" width="900" height="400" class="center"></canvas>
+      <!-- <br /><button id="button01">Button 01</button> -->
+      <p>xFormula = cos(t)
+      <br />yFormula = sint(a.t + b)
+      </p>
+      <p>
+      <br />a : <input id="aParamInput" type="number" name="step" min="1" max="5" step="0.02" value="1">
+      <br />b : <input id="bParamInput" type="number" name="step" min="0" max="2" step="0.02" value="0.1">
+      </p>
+      <p>
+      Step is stp, that means t = t + stp. Bezier control point coefficient is bzr. Bzr = 0 is used to draw straight lines.
+      <br />stp : <input id="stpParamInput" type="number" name="step" min="0.1" max="5" step="0.02" value="1">
+      <br />bzr : <input id="bzrParamInput" type="number" name="step" min="0" max="1" step="0.1" value="0.5">
+      </p>
+    </div>
+    <label id="consoleLbl"></label>
+    <script type="application/dart" src="myfirsttest.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>
