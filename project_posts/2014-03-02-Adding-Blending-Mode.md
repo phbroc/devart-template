@@ -1,5 +1,5 @@
 # ADDING BLENDING MODE
-Since 20 February 2014 blending modes are in Candidate Recommendation in W3C : [W3C Compositing and Blending Level 1](http://www.w3.org/TR/compositing-1/). Ouf, it's a required feature for my project. It's already available in modern browther. I've updated my source code for trying to play with "multiply" in Dart :
+Since 20 February 2014 blending modes are in Candidate Recommendation in W3C : [W3C Compositing and Blending Level 1](http://www.w3.org/TR/compositing-1/). Ouf, it's a required feature for my project. It's already available in modern browser. I've updated my source code for trying to play with "multiply" in Dart :
 
 ```
 ctx2d.globalCompositeOperation = "multiply";
