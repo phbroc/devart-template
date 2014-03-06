@@ -49,7 +49,7 @@ window.on['lineWidthUp'].listen((e) {
     if (e.detail) bezierCanvas.dLineWidth = 1;
     else bezierCanvas.dLineWidth = 0;
     });
-``
+```
 
 dLineWidth is the growth of line width every frames.
 
