@@ -19,7 +19,7 @@ h1, p {
 #canvas {
   position: relative;
   border: 1px solid #ccc;
-  background-color: #fff;
+  background-color: #000;
 }
 
 #colorpicker {
@@ -29,6 +29,7 @@ h1, p {
   position: absolute;
   top: 1px;
   left: 1px;
+  display: none;
 }
 
 #hslcolor {

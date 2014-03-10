@@ -8,25 +8,38 @@ const MAX_W = 800;
 const MAX_H = 600;
 const CENTER_X = 400;
 const CENTER_Y = 300;
-const SCALE_X = 250;
+const SCALE_X = 150;
 const SCALE_Y = 150;
 
 
 BezierCanvas bezierCanvas;
 KeyboardController keyboardController;
+DivElement colorpicker;
+ImageElement hslpicker;
+CanvasElement hsllum;
+ImageElement lumpicker;
+Timer colorpickerTimer;
+
+Element notes = querySelector("#fps");
+Element notes2 = querySelector("#keyP");
+num fpsAverage = 60;
 
 void main() {
   keyboardController = new KeyboardController();
   CanvasElement canvas = querySelector("#canvas");
   bezierCanvas = new BezierCanvas(canvas);
+  
+  colorpicker = querySelector("#colorpicker") as DivElement;
+  hslpicker = querySelector("#hslpicker") as ImageElement;
+  hsllum = querySelector("#hsllum") as CanvasElement;
+  lumpicker = querySelector("#lumpicker") as ImageElement;
+  
   scheduleMicrotask(bezierCanvas.start);
   bindControls();
 }
 
 
-Element notes = querySelector("#fps");
-Element notes2 = querySelector("#keyP");
-num fpsAverage;
+
 
 /// Display the animation's FPS in a div.
 void showFps(num fps) {
@@ -58,56 +71,130 @@ void bindControls() {
       });
   
   window.on['colorHueUp'].listen((e) {
-      if (e.detail) bezierCanvas.dC1h = 1;
-      else bezierCanvas.dC1h = 0;
+      if (e.detail) {
+        bezierCanvas.dC1h = 1;
+        displayColorPicker(true);
+      }
+      else {
+        bezierCanvas.dC1h = 0;
+        displayColorPicker(false);
+      }
       });
     
   window.on['colorHueDown'].listen((e) {
-      if (e.detail) bezierCanvas.dC1h = -1;
-      else bezierCanvas.dC1h = 0;
+      if (e.detail) {
+        bezierCanvas.dC1h = -1;
+        displayColorPicker(true);
+      }
+      else {
+        bezierCanvas.dC1h = 0;
+        displayColorPicker(false);
+      }
       });
   
   window.on['colorSatUp'].listen((e) {
-        if (e.detail) bezierCanvas.dC1s = 1;
-        else bezierCanvas.dC1s = 0;
+        if (e.detail) {
+          bezierCanvas.dC1s = 1;
+          displayColorPicker(true);
+        }
+        else {
+          bezierCanvas.dC1s = 0;
+          displayColorPicker(false);
+        }
         });
       
   window.on['colorSatDown'].listen((e) {
-      if (e.detail) bezierCanvas.dC1s = -1;
-      else bezierCanvas.dC1s = 0;
+      if (e.detail) {
+        bezierCanvas.dC1s = -1;
+        displayColorPicker(true);
+      }
+      else {
+        bezierCanvas.dC1s = 0;
+        displayColorPicker(false);
+      }
       });
   
   window.on['colorLumUp'].listen((e) {
-          if (e.detail) bezierCanvas.dC1l = 1;
-          else bezierCanvas.dC1l = 0;
+          if (e.detail) {
+            bezierCanvas.dC1l = 1;
+            displayColorPicker(true);
+          }
+          else {
+            bezierCanvas.dC1l = 0;
+            displayColorPicker(false);
+          }
           });
         
   window.on['colorLumDown'].listen((e) {
-      if (e.detail) bezierCanvas.dC1l = -1;
-      else bezierCanvas.dC1l = 0;
+      if (e.detail) {
+        bezierCanvas.dC1l = -1;
+        displayColorPicker(true);
+      }
+      else {
+        bezierCanvas.dC1l = 0;
+        displayColorPicker(false);
+      }
       });
   
+  window.on['obliqCurves'].listen((e) {
+      if (e.detail) {
+        bezierCanvas.cBzrParam = 0.0;
+      }
+  });
+  
+  window.on['bezierCurves'].listen((e) {
+        if (e.detail) {
+          bezierCanvas.cBzrParam = 0.65;
+        }
+  });
+  
+}
+
+void displayColorPicker(bool d) {
+    if (d) colorpicker.style.display = "block";
+    else {
+      if ((colorpickerTimer != null) && (colorpickerTimer.isActive)) colorpickerTimer.cancel();
+      colorpickerTimer = new Timer(const Duration(seconds: 2), () => colorpicker.style.display = "none");
+    }
+}
+
+void updateColorPicker(int h, int s, int l) {
+    var hsllumctx = hsllum.context2D;
+    hslpicker.style.left = (h/2).round().toString() + "px";
+    hslpicker.style.top = (100-s).round().toString() + "px";
+    
+    hsllumctx.clearRect(0, 0, 30, 100);
+    var gradient = hsllumctx.createLinearGradient(0, 0, 0, 150);
+    var color = new Color.createHsla(h, s, 50, 1);
+    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(0.5, color.rgba.cssExpression);
+    gradient.addColorStop(1, "#000");
+    hsllumctx.fillStyle = gradient;
+    hsllumctx.fillRect(0, 0, 300, 150);
+    
+    lumpicker.style.left = "205px";
+    lumpicker.style.top = (100-l).round().toString() + "px";
 }
 
 class BezierCanvas
 {
   CanvasElement canvas;
   CanvasRenderingContext2D ctx2d;
-  ImageElement hslpicker;
-  CanvasElement hsllum;
-  ImageElement lumpicker;
+  
 
-  double aParam = 1.1;
-  double bParam = 0.1;
+  double aParam = 0.0;
+  double bParam = 1.0;
   double stpParam = 1.0;
   double dStpParam = 0.0;
   double bzrParam = 0.65;
+  double dBzrParam = 0.0;
+  double cBzrParam = 0.65;
   
-  int c1h = 0;
+  int c1h = 7;
   int dC1h = 0;
-  int c1s = 100;
+  int c1s = 78;
   int dC1s = 0;
-  int c1l = 50;
+  int c1l = 43;
   int dC1l = 0;
   double c1a = 1.0;
   double dC1a = 0.0;
@@ -119,9 +206,6 @@ class BezierCanvas
   
   BezierCanvas(this.canvas) {
     ctx2d = canvas.context2D;
-    hslpicker = querySelector("#hslpicker") as ImageElement;
-    hsllum = querySelector("#hsllum") as CanvasElement;
-    lumpicker = querySelector("#lumpicker") as ImageElement;
   }
   
   
@@ -147,12 +231,12 @@ class BezierCanvas
     
     
     ctx2d.clearRect(0, 0, MAX_W, MAX_H);
-    ctx2d.setFillColorRgb(240, 240, 240, 1);
+    ctx2d.setFillColorRgb(0, 0, 0, 1);
     ctx2d.rect(0, 0, MAX_W, MAX_H);
     ctx2d.fill();
-    ctx2d.globalCompositeOperation = "multiply";
+    ctx2d.globalCompositeOperation = "screen";
     ctx2d.lineWidth = lineWidth;
-    ctx2d.setStrokeColorRgb(90, 200, 220, 1);
+    ctx2d.setStrokeColorHsl(0, 0, 50, 1);
     i = 0;
     while (t < 70) {
       xa = xFormula(t);
@@ -170,8 +254,9 @@ class BezierCanvas
       xcpb = xb - (xb - ((xa+xb)/2 + 2.2*(xm-(xa+xb)/2)))*bzrParam;
       ycpb = yb - (yb - ((ya+yb)/2 + 2.2*(ym-(ya+yb)/2)))*bzrParam;
       
-      if (i % 2 == 0) ctx2d.setStrokeColorHsl(c1h, c1s, c1l, c1a);
-      else ctx2d.setStrokeColorRgb(170, 170, 170, 1);
+      if (i % 3 == 0) ctx2d.setStrokeColorHsl(c1h, c1s, c1l, c1a);
+      else if (i % 3 == 1) ctx2d.setStrokeColorHsl(216, 90, 47, 1);
+      else ctx2d.setStrokeColorHsl(43, 99, 50, 1);
       
       ctx2d.beginPath();
       ctx2d.moveTo(xScreen(xa), yScreen(ya));
@@ -194,37 +279,30 @@ class BezierCanvas
   
   
   void updateVariables() {
+    if (fpsAverage < 30) {
+      dStpParam = 0.1;
+    }
+    
     lineWidth = max(1, min(255, lineWidth + dLineWidth));
-    stpParam = max(0.04, stpParam + dStpParam);
+    stpParam = max(0.1, stpParam + dStpParam);
     
     c1h = max(0, min(360, c1h + dC1h));
     c1s = max(0, min(100, c1s + dC1s));
     c1l = max(0, min(100, c1l + dC1l));
     
-    updateColorPicker();
+    updateColorPicker(c1h, c1s, c1l);
     
-    
+    if (cBzrParam != bzrParam) {
+      dBzrParam = 0.10*(cBzrParam - bzrParam);
+      bzrParam += dBzrParam;
+      if (dBzrParam.abs() < 0.001) bzrParam = cBzrParam;
+      
+    }
     
   }
   
   
-  void updateColorPicker() {
-    var hsllumctx = hsllum.context2D;
-    hslpicker.style.left = (c1h/2).round().toString() + "px";
-    hslpicker.style.top = (100-c1s).round().toString() + "px";
-    
-    hsllumctx.clearRect(0, 0, 30, 100);
-    var gradient = hsllumctx.createLinearGradient(0, 0, 0, 150);
-    var color = new Color.createHsla(c1h, c1s, 50, 1);
-    gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(0.5, color.rgba.cssExpression);
-    gradient.addColorStop(1, "#000");
-    hsllumctx.fillStyle = gradient;
-    hsllumctx.fillRect(0, 0, 300, 150);
-    
-    lumpicker.style.left = "205px";
-    lumpicker.style.top = (100-c1l).round().toString() + "px";
-  }
+  
   
   
   
@@ -246,6 +324,10 @@ class BezierCanvas
     return y*SCALE_Y + CENTER_Y;
   }
   
+  
+  ease(dynamic t) {
+    
+  }
 }
 
 class KeyboardController
@@ -266,10 +348,10 @@ class KeyboardController
   
   void initialiseKeyCodesBinding()
   {
-    keyCodesNormal[65] = "lineWidthUp";
-    keyCodesNormal[81] = "lineWidthDown";
-    keyCodesNormal[90] = "stpParamUp";
-    keyCodesNormal[83] = "stpParamDown";
+    keyCodesNormal[65] = "lineWidthUp"; //a
+    keyCodesNormal[81] = "lineWidthDown"; //q
+    keyCodesNormal[90] = "stpParamUp"; //z
+    keyCodesNormal[83] = "stpParamDown"; //s
     
     keyCodesNormal[85] = "colorHueUp";
     keyCodesNormal[74] = "colorHueDown";
@@ -277,6 +359,9 @@ class KeyboardController
     keyCodesNormal[75] = "colorSatDown";
     keyCodesNormal[79] = "colorLumUp";
     keyCodesNormal[76] = "colorLumDown";
+    
+    keyCodesNormal[87] = "bezierCurves"; //w
+    keyCodesNormal[88] = "obliqCurves"; //x
   }
   
   void keydown(KeyboardEvent event) {
@@ -290,3 +375,13 @@ class KeyboardController
   }
 }
 
+class BezierCanvasEasing {
+  BezierCanvas bezierCanvas;
+  
+  BezierCanvasEasing (this.bezierCanvas, num property)
+  {
+    property = 0;
+  }
+  
+  
+}
