@@ -87,7 +87,7 @@ Work is in progress. I can reach some surprising effects now ! It becomes harder
 https://www.youtube.com/watch?v=Wm8W3jU6sy4
 
 
-## Hacking keyboard has began...
+## Hacking keyboard has begun...
 I began to teardown a keyboard and I extracted the microcircuit. There is next a piece of fun, with matching contacts to their behaviors with keys... I'm slightly afraid. 
 
 ![Keyboard circuit on the air](../project_images/keyboardHack01.jpg?raw=true "Keyboard circuit on the air")
