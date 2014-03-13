@@ -8,4 +8,5 @@ My project is to build a user friendly interface for mixing and blending bezier 
 
 ![Installation](project_images/installation.jpg?raw=true "Installation")
 
+I choosed to use [Dart language](https://www.dartlang.org) for my Google tool.
 More to come...
