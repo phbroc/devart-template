@@ -23,7 +23,7 @@ h1, p {
 }
 
 #colorpicker {
-  background-color: #666;
+  background-color: rgba(0,0,0,0.5);
   width: 240px;
   height: 120px;
   position: absolute;
