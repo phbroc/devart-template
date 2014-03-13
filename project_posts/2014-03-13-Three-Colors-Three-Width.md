@@ -2,7 +2,7 @@
 In the past days, I've been working on adding more interaction on my project. 
 
 ## Easing effects for animation
-Everything in drawn on html5 canvas is calculated with numbers (doubles). I've been searching for a native support of [easing functions](http://www.timotheegroleau.com/Flash/experiments/easing_function_generator.htm) in Dart, but I didn't found really what I needed. Never mind, I built a new class for this in my project. This class will handle [double numbers](https://api.dartlang.org/apidocs/channels/stable/#dart:core.double) for animation. For instance when the method update() will be called, the number will change value slightly. Evolution of the number is calculated with new equations which look like ease functions :
+Everything drawn on html5 canvas is calculated with numbers (doubles). I've been searching for a native support of [easing functions](http://www.timotheegroleau.com/Flash/experiments/easing_function_generator.htm) in Dart, but I didn't found really what I needed. Never mind, I built a new class for this in my project. This class will handle [double numbers](https://api.dartlang.org/apidocs/channels/stable/#dart:core.double) for animation. For instance when the method update() will be called, the number will change value slightly. Evolution of the number is calculated with new equations which look like ease functions :
 
 ![ease functions](../project_images/easeFunctions.jpg?raw=true "Ease functions")
 
