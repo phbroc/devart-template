@@ -79,10 +79,10 @@ There are now three markers along the path :
 2. middle color & middle line width
 3. ending color & ending line width
 
-Between this markers, colors and line width can be calculated as interpolation with the nearest values.
+Between this markers, colors and line width can be calculated as interpolation with the nearest values. The fact it's only mixing 3 colors in screen blending mode on a black background, make it easier to get a nice chromatic feeling as a result.
 
 ## A second live action with the ring
-Work is in progress. I can reach some surprising effects now ! It becomes harder to really understand what key press will trigger on the screen. I made this video today :
+Work is in progress. I can reach some surprising effects now ! It becomes harder to really understand what key press will trigger on the screen. I have add a test to prevent from FPS (frame per second) shut down. This happens when there are to many curves to draw on the screen, screen will freeze (and computer will burn :-/) !. To do so I check if FPS is lower than 50 frames per second (usually it is 60 on my computer). When it comes lower than 50, it's no more possible to add more curves for the drawing. I made this video today :
 
 https://www.youtube.com/watch?v=Wm8W3jU6sy4
 
