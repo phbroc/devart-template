@@ -44,7 +44,7 @@ There are four more parameters now, splitVnumber, splitVheight, splitHnumber spl
 ```
 
 ## At the end there is the ring
-In post number 5, I was talking about the ring. The drawing begins with the circus ring. Now initial parameters are memorized. If no one is updating the curve within ten seconds, the system gets back to those initial parameters automatically. This way back animation can show strange results...
+In post number 5, I was talking about the ring. The drawing begins with the circus ring. Now initial parameters are memorized. If no one is updating the curve within ten seconds, the system gets back to these initial parameters automatically. This way back animation can show strange results...
 
 ## New live capture
 In the video below, I am using the new feature of splitting the curve.
