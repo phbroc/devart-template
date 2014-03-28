@@ -35,6 +35,16 @@ double yFormula(double t) {
 ```
 
 ## Images & Videos
+Some snapshots :
+
+![capture 07](project_images/capture07.jpg?raw=true "capture07")
+
+![capture 10](project_images/capture10.jpg?raw=true "capture10")
+
+![capture 11](project_images/capture11.jpg?raw=true "capture11")
+
+![capture 12](project_images/capture12.jpg?raw=true "capture12")
+
 One of my latest live capture :
 
 https://www.youtube.com/watch?v=e3ot0oZ4T4c
