@@ -1,15 +1,20 @@
 
 body {
-  background-color: #F8F8F8;
+  background-color: #000;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: normal;
   line-height: 1.2em;
   margin: 15px;
+  color: #aaa;
 }
 
 h1, p {
-  color: #333;
+  color: #aaa;
+}
+
+a { 
+  color: yellow;
 }
 
 #container {
@@ -18,7 +23,7 @@ h1, p {
 
 #canvas {
   position: relative;
-  border: 1px solid #ccc;
+  border: 1px solid #666;
   background-color: #000;
 }
 

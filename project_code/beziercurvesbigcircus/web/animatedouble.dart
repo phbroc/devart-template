@@ -18,6 +18,8 @@ class AnimateDouble {
   static const EASE_IN_OUT = "easeInOut";
   static const LINEAR_FACT = 0.025;
   static const EXP_FACT = 0.001;
+  static const CONSTANT_UP = "constantUp";
+  static const CONSTANT_DOWN = "constantDown";
   Timer timer;
   int t;
   int tFinal;
@@ -38,6 +40,10 @@ class AnimateDouble {
       case EXP_DOWN : value = max(mini, value - step); 
                                     step = min(1.1*step, 0.05*(value - mini));
                                     break;
+      case CONSTANT_UP : value = min(maxi, value + step);
+                              break;
+      case CONSTANT_DOWN : value = max(mini, value - step);
+                              break;
       case BREAK_UP : value = min(maxi, value + step);
                                     step *= 0.9;
                                     break;
@@ -60,6 +66,7 @@ class AnimateDouble {
       switch (mode) {
         case LINEAR_UP : case LINEAR_DOWN : step = max(value * LINEAR_FACT, LINEAR_FACT); break;
         case EXP_UP : case EXP_DOWN : step = max(value * EXP_FACT, EXP_FACT); break;
+        case CONSTANT_UP : case CONSTANT_DOWN : step = 0.002 *(maxi -mini); 
       }
       
     }
@@ -77,8 +84,8 @@ class AnimateDouble {
   
   void stop() {
     switch (mode) {
-          case LINEAR_UP : case EXP_UP : mode = BREAK_UP; break;
-          case LINEAR_DOWN : case EXP_DOWN : mode = BREAK_DOWN; break;
+          case LINEAR_UP : case EXP_UP : case CONSTANT_UP : mode = BREAK_UP; break;
+          case LINEAR_DOWN : case EXP_DOWN : case CONSTANT_DOWN : mode = BREAK_DOWN; break;
     }
     
     if ((timer != null) && (timer.isActive)) timer.cancel();
