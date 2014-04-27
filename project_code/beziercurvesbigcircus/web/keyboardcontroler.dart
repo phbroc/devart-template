@@ -79,7 +79,7 @@ class KeyboardController
     keyCodesShift[74] = "beginTUp"; //j
     keyCodesShift[75] = "beginTDown"; //k
     
-    keyCodesShift[76] = "toggleFullScreen"; //l
+    //keyCodesShift[76] = "toggleFullScreen"; //l
   }
   
   void keydown(KeyboardEvent event) {

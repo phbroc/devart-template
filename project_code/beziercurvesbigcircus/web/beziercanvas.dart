@@ -89,8 +89,6 @@ class BezierCanvas
   
   num renderTime;
   
-  
-  
   Timer backToInitTimer;
   
   BezierCanvas(this.canvas, this.bcbcApp) {
@@ -103,16 +101,16 @@ class BezierCanvas
     scaleX = bcbcApp.scaleX;
     scaleY = bcbcApp.scaleY;
     
-    aParam = new AnimateDouble(aParamInit, 0.0, 10.0);
-    bParam = new AnimateDouble(bParamInit, 0.0, 10.0);
+    aParam = new AnimateDouble(aParamInit, 0.0, 20.0);
+    bParam = new AnimateDouble(bParamInit, 0.0, 20.0);
     cParam = new AnimateDouble(cParamInit, 0.0, 2.0);
     
-    lw1 = new AnimateDouble(lw1Init, 1.0, 500.0);
-    lw2 = new AnimateDouble(lw2Init, 1.0, 500.0);
-    lw3 = new AnimateDouble(lw3Init, 1.0, 500.0);
+    lw1 = new AnimateDouble(lw1Init, 1.0, 1000.0);
+    lw2 = new AnimateDouble(lw2Init, 1.0, 1000.0);
+    lw3 = new AnimateDouble(lw3Init, 1.0, 1000.0);
     
-    stp = new AnimateDouble(stpInit, 0.2, 20.0);
-    maxT = new AnimateDouble(maxTInit, 0.0, 1000.0);
+    stp = new AnimateDouble(stpInit, 0.02, 20.0);
+    maxT = new AnimateDouble(maxTInit, 0.0, 2000.0);
     beginT = new AnimateDouble(beginTInit, 0.0, 100.0);
     bzr = new AnimateDouble(bzrInit, 0.0, 0.65);
     dashedRatio = new AnimateDouble(dashedRatioInit, 0.0, 1.0);
@@ -153,15 +151,19 @@ class BezierCanvas
 
   
   void draw(num _) {
-    double xa, ya, xm, ym, xb, yb, xcpa, ycpa, xcpb, ycpb, t, xscreena, yscreena, xscreenb, yscreenb , interpolR, interpolG, interpolB, interpolA, interpolPos, dAM, dMB, decalAMB;
-    t = 0.0;
-    var inCanvas = true;
-    
     num time = new DateTime.now().millisecondsSinceEpoch;
     if (renderTime != null) showFps(1000 / (time - renderTime));
     renderTime = time;
     
+    doDraw();
     
+    requestRedraw();
+  }
+  
+  void doDraw() {
+    double xa, ya, xm, ym, xb, yb, xcpa, ycpa, xcpb, ycpb, t, xscreena, yscreena, xscreenb, yscreenb , interpolR, interpolG, interpolB, interpolA, interpolPos, dAM, dMB, decalAMB;
+    t = 0.0;
+    var inCanvas = true;
  
     updateVariables();
     
@@ -203,15 +205,15 @@ class BezierCanvas
       yscreenb = yScreen(yb);
       
       // the first test is necessary for splitting (decalAMB > 3); but the other tests are not necessary, it's for performance optimisation if many lines are outside the canvas.
-      if ((decalAMB > 3) || ((xscreena < 0) && (xscreenb < 0)) || ((xscreena > maxWidth) && (xscreenb > maxWidth)) || ((yscreena < 0) && (yscreenb < 0)) || ((yscreena > maxHeight) && (yscreenb > maxHeight))) {
+      if ((decalAMB > 4) || ((xscreena < 0) && (xscreenb < 0)) || ((xscreena > maxWidth) && (xscreenb > maxWidth)) || ((yscreena < 0) && (yscreenb < 0)) || ((yscreena > maxHeight) && (yscreenb > maxHeight))) {
         inCanvas = false;
       } else {
         if (t < maxT.value / 2) {
           interpolPos = 2 *t /maxT.value;
-          ctx2d.lineWidth = lw1.value + (lw2.value - lw1.value) *interpolPos;
+          ctx2d.lineWidth = (lw1.value + (lw2.value - lw1.value) *interpolPos) *maxWidth/800;
         } else {
           interpolPos = (2 *t /maxT.value) -1;
-          ctx2d.lineWidth = lw2.value + (lw3.value - lw2.value) *interpolPos;
+          ctx2d.lineWidth = (lw2.value + (lw3.value - lw2.value) *interpolPos) *maxWidth/800;
         }
         
         if (colorDistribution == "alternate") {
@@ -244,8 +246,6 @@ class BezierCanvas
       }
       nbCurves++;
     }
-    
-    requestRedraw();
   }
   
   void requestRedraw() {
@@ -262,7 +262,7 @@ class BezierCanvas
     var promptStr = "";
     isUpdatingSomething = false;
     
-    if (fpsAverage < 50) {
+    if (fpsAverage < 12) {
       //if (maxT.valueTarget != null) print(maxT.valueTarget.toString() + " " + maxT.value.toString() + " " + maxT.mode);
       
       if ((maxT.mode == AnimateDouble.LINEAR_DOWN) || ((maxT.valueTarget != null) && (maxT.value > maxT.valueTarget)))  {
@@ -471,7 +471,7 @@ class BezierCanvas
                               bcbcApp.updateVarprompt(promptStr); break;
       }
     } else {
-      if ((backToInitTimer == null) || (!backToInitTimer.isActive)) backToInitTimer = new Timer(const Duration(seconds: 60), () => backToInit());
+      if ((backToInitTimer == null) || (!backToInitTimer.isActive)) backToInitTimer = new Timer(const Duration(seconds: 300), () => backToInit());
     }
     
   }

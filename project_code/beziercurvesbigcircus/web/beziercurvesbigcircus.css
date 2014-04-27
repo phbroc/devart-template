@@ -1,11 +1,12 @@
 
 body {
-  background-color: #000;
+  background-color: #333;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: normal;
   line-height: 1.2em;
-  margin: 15px;
+  margin: 0;
+  padding: 0;
   color: #aaa;
 }
 
@@ -23,7 +24,6 @@ a {
 
 #canvas {
   position: relative;
-  border: 1px solid #666;
   background-color: #000;
 }
 
@@ -75,4 +75,106 @@ a {
   color: white;
   margin: 5px;
   font-size: 0.8em;
+}
+
+#customSetup {
+  padding: 0.4em;
+}
+
+.paramTbl {
+  background-color: #666;
+  width: 8em;
+  height: 7em;
+  padding: 0.2em;
+  margin: 0.4em;
+  float: left;
+  font-size: 0.8em;
+  display: block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.paramTbl td {
+  padding: 0.3em;
+  text-align: center;
+}
+
+.paramTbl2 {
+  background-color: #666;
+  width: 12em;
+  height: 7em;
+  padding: 0.2em;
+  margin: 0.4em;
+  float: left;
+  font-size: 0.8em;
+  display: block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.paramTbl2 td {
+  padding: 0.3em;
+  text-align: center;
+  line-height: 1.2em;
+}
+
+.bigChar {
+  font-size: 2.4em;
+}
+
+
+.squareBtn {
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  font-family: Arial;
+  color: #ffffff;
+  background: #999;
+  padding: 4px;
+  text-decoration: none;
+  border: 0;
+  width: 2.8em;
+  height: 2.4em;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.squareBtn:hover {
+  background: #3cb0fd;
+  text-decoration: none;
+}
+
+p.clear {
+  clear: left;
+}
+
+.threeBoxes {
+  width: 23em;
+  height: 8em;
+  background-color: #555;
+  float: left;
+  margin: 0.4em;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.threeBoxesTitle {
+  margin: 0;
+  padding: 0.2em;
+  font-size: 0.7em;
+  background-color: #444;
+}
+
+#labelColor {
+  display: block;
+  width: 2em;
+  height: 2em;
 }

@@ -26,12 +26,14 @@ class ColorController {
   }
   
   void hueUp() {
-    h = min(360, h +1);
+    h++;
+    if (h>360) h -= 360;
     synchroniseFromHsl();
   }
   
   void hueDown() {
-     h = max(0, h -1);
+     h--;
+     if (h<0) h += 360;
      synchroniseFromHsl();
   }
   

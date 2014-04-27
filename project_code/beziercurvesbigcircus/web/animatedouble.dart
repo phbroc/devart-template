@@ -23,6 +23,7 @@ class AnimateDouble {
   Timer timer;
   int t;
   int tFinal;
+  bool cyclic = false;
   
   AnimateDouble(this.value, this.mini, this.maxi);
   
@@ -40,9 +41,11 @@ class AnimateDouble {
       case EXP_DOWN : value = max(mini, value - step); 
                                     step = min(1.1*step, 0.05*(value - mini));
                                     break;
-      case CONSTANT_UP : value = min(maxi, value + step);
+      case CONSTANT_UP : if ((cyclic) && (value > maxi -step)) value -= maxi -mini;
+                          value = min(maxi, value + step);
                               break;
-      case CONSTANT_DOWN : value = max(mini, value - step);
+      case CONSTANT_DOWN : if ((cyclic) && (value < mini +step)) value += maxi -mini;
+                          value = max(mini, value - step);
                               break;
       case BREAK_UP : value = min(maxi, value + step);
                                     step *= 0.9;

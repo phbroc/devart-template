@@ -8,6 +8,7 @@ import 'package:csslib/parser.dart';
 
 part 'beziercanvas.dart';
 part 'keyboardcontroler.dart';
+part 'buttonController.dart';
 part 'animatedouble.dart';
 part 'colorcontroller.dart';
 
@@ -17,6 +18,8 @@ num fpsAverage = 60;
 //SelectElement actionSelect = querySelector("#actionSelect") as SelectElement;
 //ButtonElement recordKeysBtn = querySelector("#recordKeysBtn") as ButtonElement;
 bool recordingKeys = false;
+
+ButtonElement saveBtn = querySelector("#saveBtn") as ButtonElement;
 
 BcbcApp bcbcApp;
 
@@ -28,16 +31,17 @@ void showFps(num fps) {
 }
 
 class BcbcApp {
-  int maxWidth = 1280;
-  int maxHeight = 800;
-  int centerX = 640;
-  int centerY = 400;
-  int scaleX = 150;
-  int scaleY = 150;
+  int maxWidth;
+  int maxHeight;
+  int centerX;
+  int centerY;
+  int scaleX;
+  int scaleY;
   
   
   BezierCanvas bezierCanvas;
   KeyboardController keyboardController;
+  ButtonController buttonController;
   DivElement colorpicker;
   ImageElement hslpicker;
   CanvasElement hsllum;
@@ -45,25 +49,36 @@ class BcbcApp {
   Timer colorpickerTimer;
   DivElement varprompt;
   LabelElement labelprompt;
+  LabelElement labelColor;
   Timer varpromptTimer;
   String varToPrompt;
   
   bool ownMouse = false;
   
-  BcbcApp() {
+  BcbcApp(int maxW, int maxH) {
+    maxWidth = maxW;
+    maxHeight = maxH;
+    centerX = (maxW/2).round();
+    centerY = (maxH/2).round();
+    scaleX = (maxWidth/8).round();
+    scaleY = scaleX;
     colorpicker = querySelector("#colorpicker") as DivElement;
     hslpicker = querySelector("#hslpicker") as ImageElement;
     hsllum = querySelector("#hsllum") as CanvasElement;
     lumpicker = querySelector("#lumpicker") as ImageElement;
     varprompt = querySelector("#varprompt") as DivElement;
     labelprompt = querySelector("#labelprompt") as LabelElement;
+    labelColor = querySelector("#labelColor") as LabelElement;
     
     CanvasElement canvas = querySelector("#canvas");
+    canvas.width = maxWidth;
+    canvas.height = maxHeight;
     canvas.onClick.listen(clicked);
     
     bezierCanvas = new BezierCanvas(canvas, this);
     
     keyboardController = new KeyboardController(this);
+    buttonController = new ButtonController();
     
     bindControls();
     
@@ -83,7 +98,25 @@ class BcbcApp {
     }
   }
   
+  void setDimensions(int w) {
+    maxWidth = w;
+    maxHeight = (maxWidth*9/16).round();
+    centerX = (maxWidth/2).round();
+    centerY = (maxHeight/2).round();
+    bezierCanvas.maxWidth = maxWidth;
+    bezierCanvas.maxHeight = maxHeight;
+    bezierCanvas.centerX = centerX;
+    bezierCanvas.centerY = centerY;
+    bezierCanvas.scaleX = (maxWidth/8).round();
+    bezierCanvas.scaleY = bezierCanvas.scaleX;
+    bezierCanvas.canvas.width = maxWidth;
+    bezierCanvas.canvas.height = maxHeight;
+  }
+  
   void bindControls() {
+    window.onResize.listen((e) {
+      setDimensions(window.innerWidth -2);
+    });
     
     window.on['lw1Up'].listen((e) {
       if (e.detail) bezierCanvas.lw1.play(AnimateDouble.LINEAR_UP);
@@ -559,6 +592,9 @@ class BcbcApp {
       
       lumpicker.style.left = "205px";
       lumpicker.style.top = (100-l).round().toString() + "px";
+      
+      color = new Color.createHsla(h, s, l, 1);
+      labelColor.style.backgroundColor = color.rgba.cssExpression;
   }
   
   void displayVarprompt(bool d) {
@@ -577,10 +613,12 @@ class BcbcApp {
 }
 
 void main() {
-  bcbcApp = new BcbcApp();
+  bcbcApp = new BcbcApp(window.innerWidth -2, ((window.innerWidth -2)*9/16).round());
   
   //actionSelect.onChange.listen((e) => setupAction());
   //recordKeysBtn.onClick.listen((e) => updateRecordingKeys());
+  
+  saveBtn.onClick.listen(saveImg);
 }
 
 void updateRecordingKeys() {
@@ -604,3 +642,32 @@ void setupAction() {
 
 
 
+
+
+void saveImg(MouseEvent event) {
+  var sizeW = 1920;
+  RadioButtonInputElement rdSize = querySelector("#size2160p") as RadioButtonInputElement;
+  if (rdSize.checked) sizeW = 3840;
+  else {
+    rdSize = querySelector("#size480p") as RadioButtonInputElement;
+    if (rdSize.checked) sizeW = 854;
+    else {
+      rdSize = querySelector("#size720p") as RadioButtonInputElement;
+      if (rdSize.checked) sizeW = 1280;
+      else {
+        rdSize = querySelector("#size1080p") as RadioButtonInputElement;
+        if (rdSize.checked) sizeW = 1920;
+        else {
+          rdSize = querySelector("#size1440p") as RadioButtonInputElement;
+          if (rdSize.checked) sizeW = 2560;
+        }
+      }
+    }
+  }
+  
+  bcbcApp.setDimensions(sizeW);
+  bcbcApp.bezierCanvas.doDraw();
+  var dataUrl = bcbcApp.bezierCanvas.canvas.toDataUrl("image/jpeg", 0.95);
+  window.open(dataUrl, "image", "_blank");
+  bcbcApp.setDimensions(window.innerWidth -2);
+}
