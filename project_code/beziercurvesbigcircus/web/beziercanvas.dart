@@ -134,8 +134,8 @@ class BezierCanvas
     colorDistribution = colorDistributionInit;
     
     zoom = new AnimateDouble(zoomInit, 0.0, 15.0);
-    xOrigine = new AnimateDouble(xOrigineInit, -1.8*bcbcApp.maxWidth, 1.8*bcbcApp.maxWidth);
-    yOrigine = new AnimateDouble(yOrigineInit, -1.8*bcbcApp.maxHeight, 1.8*bcbcApp.maxHeight);
+    xOrigine = new AnimateDouble(xOrigineInit, -1.8, 1.8);
+    yOrigine = new AnimateDouble(yOrigineInit, -1.8, 1.8);
     
     splitHnumber = new AnimateDouble(splitHnumberInit, 1.0, 50.0);
     splitHwidth = new AnimateDouble(splitHwidthInit, 0.0, 50.0);
@@ -563,11 +563,11 @@ class BezierCanvas
   }
 
   double xScreen(double x) {
-    return x* scaleX *zoom.value + centerX + xOrigine.value;
+    return x* scaleX *zoom.value + centerX + (xOrigine.value*maxWidth);
   }
 
   double yScreen(double y) {
-    return y* scaleY *zoom.value + centerY + yOrigine.value;
+    return y* scaleY *zoom.value + centerY + (yOrigine.value*maxHeight);
   }
   
   
