@@ -104,7 +104,7 @@ class KeyboardController
         if (bcbcApp.ownMouse) window.dispatchEvent(new CustomEvent(keyCodesNormal[event.keyCode], detail:true));
         else if (recordingKeys) {
           //keyCodesNormal[event.keyCode] = actionSelect.value.toString();
-          notes2.innerHtml = " key recorded"; //new String.fromCharCode(event.keyCode) + ;
+          //notes2.innerHtml = " key recorded"; //new String.fromCharCode(event.keyCode) + ;
         }
       }
   }

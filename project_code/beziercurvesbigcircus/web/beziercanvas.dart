@@ -110,7 +110,7 @@ class BezierCanvas
     lw3 = new AnimateDouble(lw3Init, 1.0, 1000.0);
     
     stp = new AnimateDouble(stpInit, 0.02, 20.0);
-    maxT = new AnimateDouble(maxTInit, 0.0, 2000.0);
+    maxT = new AnimateDouble(maxTInit, 0.0, 4000.0);
     beginT = new AnimateDouble(beginTInit, 0.0, 100.0);
     bzr = new AnimateDouble(bzrInit, 0.0, 0.65);
     dashedRatio = new AnimateDouble(dashedRatioInit, 0.0, 1.0);
@@ -471,7 +471,7 @@ class BezierCanvas
                               bcbcApp.updateVarprompt(promptStr); break;
       }
     } else {
-      if ((backToInitTimer == null) || (!backToInitTimer.isActive)) backToInitTimer = new Timer(const Duration(seconds: 300), () => backToInit());
+      if ((backToInitTimer == null) || (!backToInitTimer.isActive)) backToInitTimer = new Timer(const Duration(seconds: 180), () => backToInit());
     }
     
   }

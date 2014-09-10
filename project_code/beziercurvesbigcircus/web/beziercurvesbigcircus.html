@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Beziercurvesbigcircus</title>
+    <link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="beziercurvesbigcircus.css">
   </head>
   <body>
@@ -21,7 +22,8 @@
       </div>
     </div>
     <div id="customSetup">
-    
+     <h1><span><svg class="icon" viewBox="0 0 32 32"><use xlink:href="images/sprites.svg#icon-arrow-down"></use></svg></span>&nbsp;BEZIER CURVES BIG CIRCUS&nbsp;<span><svg class="icon" viewBox="0 0 32 32"><use xlink:href="images/sprites.svg#icon-arrow-down"></use></svg></span></h1>
+     <div id="controlBoxes">
       <div class="threeBoxes">
         <p class="threeBoxesTitle">PARAMETRIC EQUATION PARAMETERS</p>
         <table class="paramTbl">
@@ -449,104 +451,30 @@
         </table>
         
       </div>      
+     </div>
       
-      
-      <p class="clear"></p>
+    <p class="clear"></p>
     
-    <!--
-      <button id="recordKeysBtn">Record keys OFF</button>
-      <select id="actionSelect">
-        <option value="">select action</option>
-        <option value="lw1Up">Line begin width up</option>
-        <option value="lw1Down">Line begin width down</option>
-        <option value="lw2Up">Line middle width up</option>
-        <option value="lw2Down">Line middle width down</option>
-        <option value="lw3Up">Line end width up</option>
-        <option value="lw3Down">Line end width down</option>
-      </select>
-      -->
       
       
       
-      <h1>BEZIER CURVES BIG CIRCUS</h1>
-    <h3>DevArt project by Philippe Brouard, working draft 03/2014...</h3>
-    <p>Laboratory for drawing bezier curves with Dart. The drawing line is calculated with this equation :</p>
-    <p>x = cos(t) + a*cos(b*t)<br />
-    y = sint(c*t) + a*sin(b*t)</p>
+    <div id="readme">  
+    <h3>This webapp is a DevArt project by Philippe Brouard, updated version 09/2014.</h3>
+    <p>On the main canvas at the top of the display, there is a continuous line drawn with the help of this equation :</p>
+    <p class="formula">x = cos(t) + <span class="textColor">Aparam</span>*cos(<span class="textColor">Bparam</span>*t)<br />
+    y = sint(<span class="textColor">Cparam</span>*t) + <span class="textColor">Aparam</span>*sin(<span class="textColor">Bparam</span>*t)</p>
+    
     <div>
-      <p>Keyboard shortcuts become avalaible when click on canvas below. STATUS : <span id="keyP">not clicked yet</span>. FRAME RATE : <span id="fps"></span> </p>
+      <p>The drawing is constantly updated. If there is too many lines on the canvas, it's more difficult to update: the application runs slower. Initial frame rate is about 60. It should not go under 6.</p>
+      <p class="formula">Actual FRAME RATE is : <span id="fps"></span> </p>
     </div>
       
       
-      <h4>Keyboard shortcuts</h4>
       
-      <p>
-      a Up : Maj + Q <br />
-      a Down : Maj + S <br />
-      b Up : Maj + D <br />
-      b Down : Maj + F <br />
-      c Up : Maj + G <br />
-      c Down : Maj + H <br />
-      </p>
       
-      <p>
-      begin T interval Up : Maj + J <br />
-      begin T interval Down : Maj + K <br />
-      max T interval Up : Maj + U <br />
-      max T interval Down : Maj + I <br />
-      step Up : Maj + O <br />
-      step Down : Maj + P <br />
-      </p>
-      
-      <p>
-      begin line Up : Maj + A <br />
-      begin line Down : Maj + Z <br />
-      middle line Up : Maj + E <br />
-      middle line Down : Maj + R <br />
-      end line Up : Maj + T <br />
-      end line Down : Maj + Y <br />
-      change line style : V <br />
-      dashed line Up : W <br />
-      dashed line Down : X <br />
-      </p>
-      
-      <p>
-      select color to control : B <br />
-      hue left : A <br />
-      hue right : Z <br />
-      saturation Up : E <br />
-      saturation Down : R <br />
-      lightness Up : T <br />
-      lightness Down : Y <br />
-      change color distribution : C
-      </p>
-      
-      <p>
-      pan Left : U <br />
-      pan Right : I <br />
-      pan Up : O <br />
-      pan Down : P <br />
-      zoom Up : G <br />
-      zoom Down : H <br />
-      </p>
-      
-      <p>
-      split more columns : J <br />
-      split less columns : K <br />
-      split more lines : L <br />
-      split less lines : M <br />
-      </p>
-      
-      <p>
-      split width Up : Q <br />
-      split width Down : S <br />
-      split height Up : D <br />
-      split height Down : F <br />
-      </p>
-      
-      <p>When doing nothing on canvas (no keyboard action) during 60 seconds, drawing get back to initial ring.</p>
+      <p>When doing nothing on canvas (no keyboard action) during 180 seconds, drawing get back to initial ring.</p>
       <p>Project on Github : <a href="https://github.com/phbroc/devart-template">https://github.com/phbroc/devart-template</a></p>
-      
+      </div>
     </div>
     
     <script type="application/dart" src="beziercurvesbigcircus.dart"></script>

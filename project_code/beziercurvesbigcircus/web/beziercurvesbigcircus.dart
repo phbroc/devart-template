@@ -13,7 +13,7 @@ part 'animatedouble.dart';
 part 'colorcontroller.dart';
 
 Element notes = querySelector("#fps");
-Element notes2 = querySelector("#keyP");
+//Element notes2 = querySelector("#keyP");
 num fpsAverage = 60;
 //SelectElement actionSelect = querySelector("#actionSelect") as SelectElement;
 //ButtonElement recordKeysBtn = querySelector("#recordKeysBtn") as ButtonElement;
@@ -52,6 +52,7 @@ class BcbcApp {
   LabelElement labelColor;
   Timer varpromptTimer;
   String varToPrompt;
+  DivElement customsetup;
   
   bool ownMouse = false;
   
@@ -69,11 +70,13 @@ class BcbcApp {
     varprompt = querySelector("#varprompt") as DivElement;
     labelprompt = querySelector("#labelprompt") as LabelElement;
     labelColor = querySelector("#labelColor") as LabelElement;
+    customsetup = querySelector("#customSetup") as DivElement;
     
     CanvasElement canvas = querySelector("#canvas");
     canvas.width = maxWidth;
     canvas.height = maxHeight;
-    canvas.onClick.listen(clicked);
+    // with buttons on screen it's less interessant to have keyboard shortcuts
+    // canvas.onClick.listen(clicked);
     
     bezierCanvas = new BezierCanvas(canvas, this);
     
@@ -81,6 +84,7 @@ class BcbcApp {
     buttonController = new ButtonController();
     
     bindControls();
+    setDimensions(window.innerWidth, window.innerHeight);
     
     scheduleMicrotask(bezierCanvas.start);
   }
@@ -89,18 +93,22 @@ class BcbcApp {
   void clicked(Event event) {
     if (!ownMouse) {
       ownMouse = true;
-      notes2.innerHtml = " OK for keyboard shotcuts on canvas.";
+      //notes2.innerHtml = " OK for keyboard shotcuts on canvas.";
       recordingKeys = false;
       //recordKeysBtn.innerHtml = "Record keys OFF";
     } else {
       ownMouse = false;
-      notes2.innerHtml = " No keyboard shortcuts. Click on canvas.";
+      //notes2.innerHtml = " No keyboard shortcuts. Click on canvas.";
     }
   }
   
-  void setDimensions(int w) {
-    maxWidth = w;
+  void setDimensions(int w, int h) {
+    var bottomHeight = h;
+    maxWidth = min(w,(h*16/9)-250).round();
     maxHeight = (maxWidth*9/16).round();
+    
+    
+    
     centerX = (maxWidth/2).round();
     centerY = (maxHeight/2).round();
     bezierCanvas.maxWidth = maxWidth;
@@ -111,11 +119,13 @@ class BcbcApp {
     bezierCanvas.scaleY = bezierCanvas.scaleX;
     bezierCanvas.canvas.width = maxWidth;
     bezierCanvas.canvas.height = maxHeight;
+    
+    customsetup.style.setProperty("height", (h-maxHeight+15).toString() + "px");
   }
   
   void bindControls() {
     window.onResize.listen((e) {
-      setDimensions(window.innerWidth -2);
+      setDimensions(window.innerWidth, window.innerHeight);
     });
     
     window.on['lw1Up'].listen((e) {
@@ -169,7 +179,7 @@ class BcbcApp {
         });
     
     window.on['maxTUp'].listen((e) {
-        if ((e.detail) && (fpsAverage > 50)) {
+        if ((e.detail) && (fpsAverage > 12)) {
           bezierCanvas.maxT.play(AnimateDouble.LINEAR_UP);
           varToPrompt = "maxT";
           displayVarprompt(true);
@@ -205,7 +215,7 @@ class BcbcApp {
         });
       
     window.on['stpDown'].listen((e) {
-        if ((e.detail) && (fpsAverage > 50)) {
+        if ((e.detail) && (fpsAverage > 12)) {
           bezierCanvas.stp.play(AnimateDouble.EXP_DOWN);
           varToPrompt = "stp";
           displayVarprompt(true);
@@ -613,7 +623,7 @@ class BcbcApp {
 }
 
 void main() {
-  bcbcApp = new BcbcApp(window.innerWidth -2, ((window.innerWidth -2)*9/16).round());
+  bcbcApp = new BcbcApp(window.innerWidth, (window.innerWidth*9/16).round());
   
   //actionSelect.onChange.listen((e) => setupAction());
   //recordKeysBtn.onClick.listen((e) => updateRecordingKeys());
@@ -626,7 +636,7 @@ void updateRecordingKeys() {
     //recordKeysBtn.innerHtml = "Record keys ON";
     recordingKeys = true;
     bcbcApp.ownMouse = false;
-    notes2.innerHtml = " No keyboard on canvas.";
+    //notes2.innerHtml = " No keyboard on canvas.";
   }
   else {
     //recordKeysBtn.innerHtml = "Record keys OFF";
@@ -636,7 +646,7 @@ void updateRecordingKeys() {
 
 void setupAction() {
   //print(actionSelect.value.toString());
-  notes2.innerHtml = "";
+  //notes2.innerHtml = "";
 }
 
 
@@ -665,9 +675,9 @@ void saveImg(MouseEvent event) {
     }
   }
   
-  bcbcApp.setDimensions(sizeW);
+  bcbcApp.setDimensions(sizeW, sizeW + 100);
   bcbcApp.bezierCanvas.doDraw();
   var dataUrl = bcbcApp.bezierCanvas.canvas.toDataUrl("image/jpeg", 0.95);
   window.open(dataUrl, "image", "_blank");
-  bcbcApp.setDimensions(window.innerWidth -2);
+  bcbcApp.setDimensions(window.innerWidth, window.innerHeight);
 }
