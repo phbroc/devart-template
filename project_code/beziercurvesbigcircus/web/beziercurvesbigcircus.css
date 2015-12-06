@@ -7,7 +7,6 @@ body {
   margin: 0;
   padding: 0;
   color: #aaa;
-  overflow:hidden;
 }
 
 h1 {
@@ -27,6 +26,10 @@ p {
   font-family: sans-serif;
 }
 
+img {
+  max-width: 100%;
+}
+
 .formula {
   text-align: center;
   font-size: 1.1em;
@@ -37,17 +40,29 @@ p {
 }
 
 a { 
-  color: yellow;
+  color: gold;
 }
 
 #container {
-  position: relative;
+  position: absolute;
   text-align: center;
+  z-index: 1;
+  top: 0;
+  background-color: #222;
+}
+
+#backcanvas {
+  position: absolute;
+  background-color: gold;
+  width: 100%;
+  height: 30em;
+  top: -30em;
 }
 
 #canvas {
   position: relative;
   background-color: #000;
+  margin: 0 auto;
 }
 
 #colorpicker {
@@ -102,9 +117,6 @@ a {
 #customSetup {
   display: block;
   position: relative;
-  top: 0;
-  overflow: scroll;
-  height: 30em;
 }
 
 #controlBoxes {
@@ -212,6 +224,16 @@ p.clear {
 
 #readme {
 	padding: 1em;
+}
+
+#share {
+  padding: 1em;
+}
+
+.shareBtn {
+  float:left;
+  width: 6em;
+  height: 2em;
 }
 
 .icon {

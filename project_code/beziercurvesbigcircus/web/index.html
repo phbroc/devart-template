@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+
+<!--
+  Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
+  is governed by a BSD-style license that can be found in the LICENSE file.
+-->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="scaffolded-by" content="https://github.com/google/stagehand">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Bezier Curves Big Circus</title>
+    <link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="beziercurvesbigcircus.css">
+    <link rel="apple-touch-icon" href="images/icon/icon60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="images/icon/icon76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="images/icon/icon120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="images/icon/icon152.png">
+    <link rel="icon" sizes="192x192" href="images/icon/icon192.png">
+    <link rel="icon" sizes="128x128" href="images/icon/icon128.png">
+    <script async src="main.dart" type="application/dart"></script>
+    <script async src="packages/browser/dart.js"></script>
+</head>
+
+<body>
+
+<div id="container">
+    <div id="backcanvas"></div>
+    <canvas id="canvas" width="1280" height="800" class="center"></canvas>
+    <div id="colorpicker">
+        <img src="images/hslcolor.png" id="hslcolor"/>
+        <img src="images/hslpicker.png" id="hslpicker"/>
+        <canvas id="hsllum"></canvas>
+        <img src="images/hslpicker.png" id="lumpicker"/>
+    </div>
+    <div id="varprompt">
+        <label id="labelprompt"></label>
+    </div>
+</div>
+<div id="customSetup">
+    <h1><span><svg class="icon" viewBox="0 0 32 32"><use xlink:href="images/sprites.svg#icon-arrow-down"></use></svg></span>&nbsp;BEZIER CURVES BIG CIRCUS&nbsp;<span><svg class="icon" viewBox="0 0 32 32"><use xlink:href="images/sprites.svg#icon-arrow-down"></use></svg></span></h1>
+    <div id="controlBoxes">
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">PARAMETRIC EQUATION PARAMETERS</p>
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">a</span><br />
+                        param
+                    </td>
+                    <td>
+                        <button id="aParamUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="aParamDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">b</span><br />
+                        param
+                    </td>
+                    <td>
+                        <button id="bParamUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="bParamDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">c</span><br />
+                        param
+                    </td>
+                    <td>
+                        <button id="cParamUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="cParamDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">INTERVAL t VALUE PARAMETERS</p>
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">t</span><br />
+                        begin
+                    </td>
+                    <td>
+                        <button id="beginTUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="beginTDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">t</span><br />
+                        interval
+                    </td>
+                    <td>
+                        <button id="maxTUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="maxTDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">t</span><br />
+                        step
+                    </td>
+                    <td>
+                        <button id="stpUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="stpDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">LINES WIDTH</p>
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">L1</span><br />
+                        width
+                    </td>
+                    <td>
+                        <button id="lw1Up" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="lw1Down" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">L2</span><br />
+                        width
+                    </td>
+                    <td>
+                        <button id="lw2Up" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="lw2Down" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">L3</span><br />
+                        width
+                    </td>
+                    <td>
+                        <button id="lw3Up" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="lw3Down" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">COLORS</p>
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">C</span>o<br />
+                        color
+                    </td>
+                    <td>
+                        <button id="switchColorControlled" class="squareBtn">&hellip;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label id="labelColor">&nbsp;</label>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td>
+                        <button id="colorHueLeft" class="squareBtn">&lt;</button>
+                    </td>
+                    <td>
+                        <button id="colorHueRight" class="squareBtn">&gt;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        Hue
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td>
+                        <button id="colorSatUp" class="squareBtn">S+</button>
+                    </td>
+                    <td>
+                        <button id="colorLightUp" class="squareBtn">L+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="colorSatDown" class="squareBtn">S-</button>
+                    </td>
+                    <td>
+                        <button id="colorLightDown" class="squareBtn">L-</button>
+                    </td>
+                </tr>
+            </table>
+
+
+
+        </div>
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">LINE STYLE - CURVE, LINE, DASHED, DISTRIBUTION</p>
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        Color<br />
+                        distrib.
+                    </td>
+                    <td>
+                        <button id="switchColorDistribution" class="squareBtn">&hellip;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>&nbsp;</label>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        Curve /<br />
+                        Line
+                    </td>
+                    <td>
+                        <button id="switchCurvesStyle" class="squareBtn">&hellip;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>&nbsp;</label>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl">
+                <tr>
+                    <td rowspan="2">
+                        Dashed<br />
+                        ratio
+                    </td>
+                    <td>
+                        <button id="dashedRatioUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="dashedRatioDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">SPLIT CURVE HORIZONTAL VERTICAL</p>
+            <table class="paramTbl2">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">Sp</span><br />
+                        split
+                    </td>
+                    <td>
+                        <button id="splitHorzUp" class="squareBtn">H+</button>
+                    </td>
+                    <td>
+                        <button id="splitVertUp" class="squareBtn">V+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="splitHorzDown" class="squareBtn">H-</button>
+                    </td>
+                    <td>
+                        <button id="splitVertDown" class="squareBtn">V-</button>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl2">
+                <tr>
+                    <td rowspan="2">
+                        <button id="splitWidthDown" class="squareBtn">&larr;</button>
+                    </td>
+                    <td>
+                        <button id="splitHeightUp" class="squareBtn">&uarr;</button>
+                    </td>
+                    <td rowspan="2">
+                        <button id="splitWidthUp" class="squareBtn">&rarr;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="splitHeightDown" class="squareBtn">&darr;</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+
+
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">ZOOM &amp; PAN</p>
+            <table class="paramTbl2">
+                <tr>
+                    <td rowspan="2">
+                        <span class="bigChar">Z</span><br />
+                        zoom
+                    </td>
+                    <td>
+                        <button id="zoomUp" class="squareBtn">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="zoomDown" class="squareBtn">-</button>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl2">
+                <tr>
+                    <td rowspan="2">
+                        <button id="panLeft" class="squareBtn">&larr;</button>
+                    </td>
+                    <td>
+                        <button id="panUp" class="squareBtn">&uarr;</button>
+                    </td>
+                    <td rowspan="2">
+                        <button id="panRight" class="squareBtn">&rarr;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="panDown" class="squareBtn">&darr;</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+
+
+
+        <div class="threeBoxes">
+            <p class="threeBoxesTitle">SAVE AS IMAGE/JPG</p>
+            <table class="paramTbl2">
+                <tr>
+                    <td>
+                        size
+                    </td>
+                    <td>
+                        480p<input type="radio" name="size" value="480" id="size480p" title="480p">
+                    </td>
+                    <td>
+                        720p<input type="radio" name="size" value="720" id="size720p" title="720p">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        1080p<input type="radio" name="size" value="1080" id="size1080p" checked="checked" title="1080p">
+                    </td>
+                    <td>
+                        1440p<input type="radio" name="size" value="1440" id="size1440p" title="1440p">
+                    </td>
+                    <td>
+                        2160p<input type="radio" name="size" value="2160" id="size2160p" title="2160p">
+                    </td>
+                </tr>
+            </table>
+
+            <table class="paramTbl2">
+                <tr>
+                    <td>
+                        SAVE :
+                    </td>
+                    <td>
+                        <button id="saveBtn" class="squareBtn">Go</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <p class="clear"></p>
+
+
+
+
+    <div id="readme">
+        <h3>This webapp is a DevArt project by Philippe Brouard, updated version 12/2015.</h3>
+        <p>At the top of the screen, the circle shape is drawn on canvas with a parametric equation. There are some explanations on the sketch below&nbsp;:</p>
+        <p class="formula"><img src="images/bcbcExplain2.jpg" alt="formula sketch"></p>
+        <p>It's possible to change many parameters when playing with buttons in the bottom part of the window. Then the circle will turn into something really different. You can also play with updating the three initial colors.</p>
+        <p>If you like what you've done while playing with Bezier Curves Big Circus, you can export it as a JPG image, and save it to your device.</p>
+        <div>
+            <p>The drawing is constantly updated. If there is too many lines on the canvas, it's more difficult to update: the application runs slower. Initial frame rate is about 60. It should not go under 6.</p>
+            <p class="formula">Actual FRAME RATE is : <span id="fps"></span> </p>
+        </div>
+
+
+
+
+        <p>When doing nothing on canvas (no keyboard action) during 180 seconds, drawing get back to initial ring.</p>
+        <p class="formula"><a href="https://github.com/phbroc/devart-template" target="_blank">Watch on Github</a></p>
+    </div>
+
+    <div id="share">
+        <div id="twitterBtn" class="shareBtn">
+            <a href="https://twitter.com/share" class="twitter-share-button"{count} data-via="pbrouard" data-lang="fr">Tweeter</a>
+        </div>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+        <div id="fb-root"></div>
+        <script>(function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v2.5";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+        </script>
+        <div class="fb-like shareBtn" layout="button"></div>
+
+
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <div class="g-plusone shareBtn" data-annotation="none" data-size="medium" data-count="false"></div>
+
+
+    </div>
+</div>
+
+
+</body>
+</html>
