@@ -1,10 +1,10 @@
 BEZIER CURVES BIG CIRCUS
 ========================
 
-This code was created for [Google Devart contest](http://www.g.co/devart) in february and march 2014.
+This code was created for [Google Devart contest](http://www.g.co/devart) in february and march 2014 and is sometime updated since this beginning.
 
 ## Licence
-Copyright 2014 Philippe Brouard
+Copyright 2014-2024 Philippe Brouard
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,4 +19,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Prototype
-You can test Bezier curves big circus online : http://www.phbroc.fr/devart/web/beziercurvesbigcircus.html
+You can test Bezier curves big circus online : https://bcbc.philippebrouard.fr
