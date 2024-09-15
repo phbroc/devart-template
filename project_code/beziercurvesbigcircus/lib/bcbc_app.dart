@@ -7,6 +7,8 @@ import 'dart:math';
 class BcbcApp {
   late BcbcScreen screen;
 
+  ButtonElement reqFs = querySelector("#reqFs") as ButtonElement;
+
   late ButtonController aParamUp;
   late ButtonController aParamDown;
   late ButtonController bParamUp;
@@ -50,6 +52,7 @@ class BcbcApp {
 
   late ButtonController lineCurve;
   late ButtonController lineStrait;
+  late ButtonController lineConc;
   late ButtonController capsRound;
   late ButtonController capsSquare;
   late ButtonController capsButt;
@@ -91,6 +94,7 @@ class BcbcApp {
   ButtonElement resumeBtn = querySelector("#resumeBtn") as ButtonElement;
   ButtonElement exportBtn = querySelector("#exportBtn") as ButtonElement;
   ButtonElement importBtn = querySelector("#importBtn") as ButtonElement;
+  ButtonElement pauseBtn = querySelector("#pauseBtn") as ButtonElement;
 
   TextAreaElement exportArea = querySelector("#exportArea") as TextAreaElement;
   TextAreaElement importArea = querySelector("#importArea") as TextAreaElement;
@@ -114,6 +118,8 @@ class BcbcApp {
   ImageElement theSnap = querySelector("#theSnap") as ImageElement;
 
   num _renderTime = DateTime.now().millisecondsSinceEpoch;
+  bool paused = false;
+
   static final BcbcApp _singleton = BcbcApp._internal();
 
   factory BcbcApp()
@@ -124,11 +130,13 @@ class BcbcApp {
   BcbcApp._internal();
 
   void init() {
+
     panel1.style.display = "block";
     toPanel1.className = "panelBtn panelBtnOn";
     panel2.style.display = "none";
     panel3.style.display = "none";
     panel4.style.display = "none";
+    pauseBtn.style.display = "none";
 
     toPanel1.onClick.listen((event) {
       panel1.style.display = "block";
@@ -138,7 +146,8 @@ class BcbcApp {
       toPanel1.className = "panelBtn panelBtnOn";
       toPanel2.className = "panelBtn panelBtnOff";
       toPanel3.className = "panelBtn panelBtnOff";
-      toPanel4.className = "panelBtn panelBtnOff";
+      if (!paused) {toPanel4.className = "panelBtn panelBtnOff";}
+      else {toPanel4.className = "panelBtn highlight";}
     });
 
     toPanel2.onClick.listen((event) {
@@ -149,7 +158,8 @@ class BcbcApp {
       toPanel1.className = "panelBtn panelBtnOff";
       toPanel2.className = "panelBtn panelBtnOn";
       toPanel3.className = "panelBtn panelBtnOff";
-      toPanel4.className = "panelBtn panelBtnOff";
+      if (!paused) {toPanel4.className = "panelBtn panelBtnOff";}
+      else {toPanel4.className = "panelBtn highlight";}
     });
 
     toPanel3.onClick.listen((event) {
@@ -160,7 +170,8 @@ class BcbcApp {
       toPanel1.className = "panelBtn panelBtnOff";
       toPanel2.className = "panelBtn panelBtnOff";
       toPanel3.className = "panelBtn panelBtnOn";
-      toPanel4.className = "panelBtn panelBtnOff";
+      if (!paused) {toPanel4.className = "panelBtn panelBtnOff";}
+      else {toPanel4.className = "panelBtn highlight";}
     });
 
     toPanel4.onClick.listen((event) {
@@ -171,7 +182,8 @@ class BcbcApp {
       toPanel1.className = "panelBtn panelBtnOff";
       toPanel2.className = "panelBtn panelBtnOff";
       toPanel3.className = "panelBtn panelBtnOff";
-      toPanel4.className = "panelBtn panelBtnOn";
+      if (!paused) {toPanel4.className = "panelBtn panelBtnOn";}
+      else {toPanel4.className = "panelBtn highlight";}
     });
 
     speed1.checked = true;
@@ -229,6 +241,10 @@ class BcbcApp {
 
     screen = BcbcScreen(cw, ch, cm, "#bcbccanvas");
 
+    reqFs.onClick.listen((event) {
+      screen.goFullScreen();
+    });
+
     aParamUp = ButtonController("#aParamUp","aParamUp", false);
     aParamDown = ButtonController("#aParamDown","aParamDown", false);
     bParamUp = ButtonController("#bParamUp","bParamUp", false);
@@ -274,6 +290,7 @@ class BcbcApp {
 
     lineCurve = ButtonController("#lineCurve", "lineCurve", true);
     lineStrait = ButtonController("#lineStrait", "lineStrait", true);
+    lineConc = ButtonController("#lineConc", "lineConc", true);
     capsRound = ButtonController("#capsRound", "capsRound", true);
     capsSquare = ButtonController("#capsSquare", "capsSquare", true);
     capsButt = ButtonController("#capsButt", "capsButt", true);
@@ -310,9 +327,12 @@ class BcbcApp {
     cancelBtn.onClick.listen(cancelImg);
     exportBtn.onClick.listen(exportImg);
     importBtn.onClick.listen(importImg);
+    pauseBtn.onClick.listen(pauseImport);
     resumeBtn.onClick.listen((event) {
       screen.backToInit();
     });
+
+    paused = false;
 
     screen.draw();
     window.animationFrame.then(refreshScreen);
@@ -333,55 +353,70 @@ class BcbcApp {
     }
     _renderTime = time;
 
-    if (screen.updateControllers()) {
-      // savoir quelle est la couleur en cours et rafraichir le label de couleur.
-      switch (screen.colorControlled) {
-        case "C1" : labelColorNum.innerHtml = "1"; labelColorSample.style.backgroundColor = screen.c1.color.toRgbColor().toCssString(); break;
-        case "C2" : labelColorNum.innerHtml = "2"; labelColorSample.style.backgroundColor = screen.c2.color.toRgbColor().toCssString(); break;
-        case "C3" : labelColorNum.innerHtml = "3"; labelColorSample.style.backgroundColor = screen.c3.color.toRgbColor().toCssString(); break;
-        case "C_" : labelColorNum.innerHtml = "_"; labelColorSample.style.backgroundColor = "transparent"; break;
-        default : labelColorNum.innerHtml = "."; labelColorSample.style.backgroundColor = "transparent";
-      }
+    if (!paused) {
+      if (screen.updateControllers()) {
+        // savoir quelle est la couleur en cours et rafraichir le label de couleur.
+        switch (screen.colorControlled) {
+          case "C1" : labelColorNum.innerHtml = "1"; labelColorSample.style.backgroundColor = screen.c1.color.toRgbColor().toCssString(); break;
+          case "C2" : labelColorNum.innerHtml = "2"; labelColorSample.style.backgroundColor = screen.c2.color.toRgbColor().toCssString(); break;
+          case "C3" : labelColorNum.innerHtml = "3"; labelColorSample.style.backgroundColor = screen.c3.color.toRgbColor().toCssString(); break;
+          case "C_" : labelColorNum.innerHtml = "_"; labelColorSample.style.backgroundColor = "transparent"; break;
+          default : labelColorNum.innerHtml = "."; labelColorSample.style.backgroundColor = "transparent";
+        }
 
-      switch (screen.lineControlled) {
-        case "L1" : labelLineNum.innerHtml = "1"; break;
-        case "L2" : labelLineNum.innerHtml = "2"; break;
-        case "L3" : labelLineNum.innerHtml = "3"; break;
-        case "L_" : labelLineNum.innerHtml = "_"; break;
-        default : labelLineNum.innerHtml = ".";
+        switch (screen.lineControlled) {
+          case "L1" : labelLineNum.innerHtml = "1"; break;
+          case "L2" : labelLineNum.innerHtml = "2"; break;
+          case "L3" : labelLineNum.innerHtml = "3"; break;
+          case "L_" : labelLineNum.innerHtml = "_"; break;
+          default : labelLineNum.innerHtml = ".";
+        }
       }
-    }
-    if (screen.updateVars()) {
-      switch (screen.varToPrompt) {
-        case "aParam" : promptVar.innerHtml = "a param: ${screen.aParam.prompt}"; break;
-        case "bParam" : promptVar.innerHtml = "b param: ${screen.bParam.prompt}"; break;
-        case "cParam" : promptVar.innerHtml = "c param: ${screen.cParam.prompt}"; break;
-        case "beginT" : promptVar.innerHtml = "t begin: ${screen.beginT.prompt}"; break;
-        case "maxT" : promptVar.innerHtml = "t interval: ${screen.maxT.prompt}"; break;
-        case "stepT" : promptVar.innerHtml = "t step: ${screen.stepT.prompt}"; break;
-        case "lw1" : promptVar.innerHtml = "L1 width: ${screen.lw1.prompt}"; break;
-        case "lw2" : promptVar.innerHtml = "L2 width: ${screen.lw2.prompt}"; break;
-        case "lw3" : promptVar.innerHtml = "L3 width: ${screen.lw3.prompt}"; break;
-        case "dash1" : promptVar.innerHtml = "L1 dash: ${screen.dash1.prompt}"; break;
-        case "dash2" : promptVar.innerHtml = "L2 dash: ${screen.dash2.prompt}"; break;
-        case "dash3" : promptVar.innerHtml = "L3 dash: ${screen.dash3.prompt}"; break;
-        case "gradient" : promptVar.innerHtml = "gradient: ${screen.gradient.prompt}"; break;
-        case "pivot" : promptVar.innerHtml = "pivot: ${screen.pivot.prompt}"; break;
-        case "distrib" : promptVar.innerHtml = "distribp: ${screen.distrib.prompt}"; break;
-        case "gapsRatio" : promptVar.innerHtml = "gaps: ${screen.gapsRatio.prompt}"; break;
-        case "Hnum" : promptVar.innerHtml = "H_num: ${screen.splitHnumber.prompt}"; break;
-        case "Vnum" : promptVar.innerHtml = "V_num: ${screen.splitVnumber.prompt}"; break;
-        case "Hwidth" : promptVar.innerHtml = "H_width: ${screen.splitHwidth.prompt}"; break;
-        case "Vheight" : promptVar.innerHtml = "V_height: ${screen.splitVheight.prompt}"; break;
-        case "explode" : promptVar.innerHtml = "explode: ${screen.explode.prompt}"; break;
-        case "zoom" : promptVar.innerHtml = "zoom: ${screen.zoom.prompt}"; break;
-        case "rotation" : promptVar.innerHtml = "rotation: ${screen.rotation.prompt}"; break;
-        default : promptVar.innerHtml = "";
+      if (screen.updateVars()) {
+        switch (screen.varToPrompt) {
+          case "aParam" : promptVar.innerHtml = "a param: ${screen.aParam.prompt}"; break;
+          case "bParam" : promptVar.innerHtml = "b param: ${screen.bParam.prompt}"; break;
+          case "cParam" : promptVar.innerHtml = "c param: ${screen.cParam.prompt}"; break;
+          case "beginT" : promptVar.innerHtml = "t begin: ${screen.beginT.prompt}"; break;
+          case "maxT" : promptVar.innerHtml = "t interval: ${screen.maxT.prompt}"; break;
+          case "stepT" : promptVar.innerHtml = "t step: ${screen.stepT.prompt}"; break;
+          case "lw1" : promptVar.innerHtml = "L1 width: ${screen.lw1.prompt}"; break;
+          case "lw2" : promptVar.innerHtml = "L2 width: ${screen.lw2.prompt}"; break;
+          case "lw3" : promptVar.innerHtml = "L3 width: ${screen.lw3.prompt}"; break;
+          case "dash1" : promptVar.innerHtml = "L1 dash: ${screen.dash1.prompt}"; break;
+          case "dash2" : promptVar.innerHtml = "L2 dash: ${screen.dash2.prompt}"; break;
+          case "dash3" : promptVar.innerHtml = "L3 dash: ${screen.dash3.prompt}"; break;
+          case "gradient" : promptVar.innerHtml = "gradient: ${screen.gradient.prompt}"; break;
+          case "pivot" : promptVar.innerHtml = "pivot: ${screen.pivot.prompt}"; break;
+          case "distrib" : promptVar.innerHtml = "distribp: ${screen.distrib.prompt}"; break;
+          case "gapsRatio" : promptVar.innerHtml = "gaps: ${screen.gapsRatio.prompt}"; break;
+          case "Hnum" : promptVar.innerHtml = "H_num: ${screen.splitHnumber.prompt}"; break;
+          case "Vnum" : promptVar.innerHtml = "V_num: ${screen.splitVnumber.prompt}"; break;
+          case "Hwidth" : promptVar.innerHtml = "H_width: ${screen.splitHwidth.prompt}"; break;
+          case "Vheight" : promptVar.innerHtml = "V_height: ${screen.splitVheight.prompt}"; break;
+          case "explode" : promptVar.innerHtml = "explode: ${screen.explode.prompt}"; break;
+          case "zoom" : promptVar.innerHtml = "zoom: ${screen.zoom.prompt}"; break;
+          case "rotation" : promptVar.innerHtml = "rotation: ${screen.rotation.prompt}"; break;
+          case "transitions" : promptVar.innerHtml = "transitions: ${screen.transitions.percent}%";
+          if (screen.transitions.percent < 100) { pauseBtn.style.display = "block"; importBtn.style.display = "none"; }
+          else if (screen.transitions.percent >= 100) {
+            pauseBtn.style.display = "none";
+            importBtn.style.display = "block";
+            if (!screen.isBack()) {
+              String result = screen.importNext();
+              if (result != "") importArea.value = result;
+            }
+          }
+          if ((screen.transitions.percent > 50) && (!screen.transitionsMidPassed)) screen.transitionsMiddle();
+          break;
+          default : promptVar.innerHtml = "";
+          break;
+        }
+        screen.draw();
+        if (fps <= 20) promptFps.innerHtml = "${fps.round()} fps";
       }
-      screen.draw();
-      if (fps <= 20) promptFps.innerHtml = "${fps.round()} fps";
+      else { promptFps.innerHtml = ""; }
     }
-    else { promptFps.innerHtml = ""; }
 
     window.animationFrame.then(refreshScreen);
   }
@@ -444,5 +479,19 @@ class BcbcApp {
       if (result != "") importArea.value = result;
     }
     else importArea.value = "nothing to import";
+  }
+
+  void pauseImport(MouseEvent event) {
+    if (!paused) {
+      pauseBtn.classes.add("highlight");
+      toPanel4.classes.add("highlight");
+      paused = true;
+    }
+    else {
+      pauseBtn.classes.remove("highlight");
+      toPanel4.classes.remove("highlight");
+      toPanel4.classes.add("panelBtnOn");
+      paused = false;
+    }
   }
 }

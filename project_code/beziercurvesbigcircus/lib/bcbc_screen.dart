@@ -73,6 +73,7 @@ class BcbcScreen {
   AnimateDouble bzr = AnimateDouble(0.0, 0.0, 0.0);
   AnimateDouble gapsRatio = AnimateDouble(0.0, 0.0, 0.0);
   String capsStyle = "butt";
+  String capsStyleTarget = "butt";
 
   ColorController c1 = ColorController(0, 0, 0);
   ColorController c2 = ColorController(0, 0, 0);
@@ -97,12 +98,16 @@ class BcbcScreen {
   AnimateDouble explode = AnimateDouble(0.0, 0.0, 0.0);
   List<double> explodeX = [];
   List<double> explodeY = [];
+  AnimateDouble transitions = AnimateDouble(0.0, 0.0, 3600.0);
+  bool transitionsMidPassed = false;
 
   int nbCurves = 0;
 
   String colorControlled = "C1";
   String lineControlled = "L1";
 
+  List<String> vars = [];
+  int varsIndex = 0;
   String varToPrompt = "";
 
   BcbcScreen(int maxW, int maxH, double multiply, String idCanvas) {
@@ -121,13 +126,13 @@ class BcbcScreen {
     _ctx2d.lineJoin = "miter";
     _ctx2d.miterLimit = 5;
 
-    aParam = AnimateDouble(aParamInit, 0.0, 20.0);
-    bParam = AnimateDouble(bParamInit, 0.0, 500.0);
+    aParam = AnimateDouble(aParamInit, -1.0, 20.0);
+    bParam = AnimateDouble(bParamInit, -1.0, 500.0);
     cParam = AnimateDouble(cParamInit, -10.0, 10.0);
 
-    lw1 = AnimateDouble(lwInit, 1.0, 2000.0);
-    lw2 = AnimateDouble(lwInit, 1.0, 2000.0);
-    lw3 = AnimateDouble(lwInit, 1.0, 2000.0);
+    lw1 = AnimateDouble(lwInit, 0.1, 2000.0);
+    lw2 = AnimateDouble(lwInit, 0.1, 2000.0);
+    lw3 = AnimateDouble(lwInit, 0.1, 2000.0);
     dash1 = AnimateDouble(dashInit, 0.0, 500);
     dash2 = AnimateDouble(dashInit, 0.0, 500);
     dash3 = AnimateDouble(dashInit, 0.0, 500);
@@ -135,9 +140,10 @@ class BcbcScreen {
     stepT = AnimateDouble(stepTInit, 0.0001, 20.0);
     maxT = AnimateDouble(maxTInit, 0.0, 100000.0);
     beginT = AnimateDouble(beginTInit, 0.0, 100.0);
-    bzr = AnimateDouble(bzrInit, 0.0, bzrInit);
+    bzr = AnimateDouble(bzrInit, 0.0 - bzrInit, bzrInit);
     gapsRatio = AnimateDouble(gapsRatioInit, 0.0, 2.0);
     capsStyle = capsStyleInit;
+    capsStyleTarget = capsStyleInit;
 
     // initialisation des trois couleurs
     c1.r = c1rInit;
@@ -153,7 +159,7 @@ class BcbcScreen {
     c3.b = c3bInit;
     c3.synchroniseFromRgb();
 
-    distrib = AnimateDouble(distribInit, 0.0, 1000.0);
+    distrib = AnimateDouble(distribInit, 0.0, 100000.0);
     pivot = AnimateDouble(pivotInit, 0.01, 0.99);
     gradient = AnimateDouble(gradientInit, 1.0, 200.0);
 
@@ -172,8 +178,14 @@ class BcbcScreen {
     explode = AnimateDouble(explodeInit, 0.0, 5.0);
     explodeX.add(2*(Random().nextDouble()-0.5));
     explodeY.add(2*(Random().nextDouble()-0.5));
+    transitions = AnimateDouble(0.0, 0.0, 3600.0);
+    transitionsMidPassed = false;
 
     setEventListener();
+  }
+
+  void goFullScreen () {
+    _canvas.requestFullscreen();
   }
 
   void setDimensions (String newDimension) {
@@ -271,6 +283,8 @@ class BcbcScreen {
     if (yOrigine.moving) { yOrigine.update(); isUpdating = true; }
     if (rotation.moving) { rotation.update(); isUpdating = true; varToPrompt = "rotation"; }
 
+    if (transitions.moving) { transitions.update(); isUpdating = true; varToPrompt = "transitions"; }
+
     return isUpdating;
   }
 
@@ -354,13 +368,14 @@ class BcbcScreen {
   }
 
   void draw() {
-    double x, y, a, xa, ya, xm, ym, xb, yb, xcp, ycp, t, xscreena, yscreena, xscreenb, yscreenb,
+    double x, y, a, xa, ya, xm, ym, xb, yb, xcp, ycp, t, xscreena, yscreena, xscreenb, yscreenb, dashD,
         interpolR, interpolG, interpolB, interpolA, interpolPos, dAM, dMB, decalAMB, colorPos, mixratio, prevmix, od, oa;
     int lineWidth, dash;
     bool inCanvas = true;
     bool nextLine = true;
     bool lineInProgress = false;
-    bool dashed = false;
+    // bool dashed = false; je ne fais plus ce test car ça ne fonctionne pas correctement, j'ai retrouvé comment ramener la dash à zéro, truc bizarre avec la fonction floor
+    dash = 0;
     t = 0.0;
     od = 0.0;
     oa = 0.0;
@@ -442,11 +457,11 @@ class BcbcScreen {
         if (t < maxT.value / 2) {
           interpolPos = 2 *t /maxT.value;
           lineWidth = ((lw1.value + (lw2.value - lw1.value) *interpolPos) *_multiplyDimension).ceil();
-          dash = ((dash1.value + (dash2.value - dash1.value) *interpolPos) *_multiplyDimension).floor();
+          dashD = ((dash1.value + (dash2.value - dash1.value) *interpolPos) *_multiplyDimension);
         } else {
           interpolPos = (2 *t /maxT.value) -1;
           lineWidth = ((lw2.value + (lw3.value - lw2.value) *interpolPos) *_multiplyDimension).ceil();
-          dash = ((dash2.value + (dash3.value - dash2.value) *interpolPos) *_multiplyDimension).floor();
+          dashD = ((dash2.value + (dash3.value - dash2.value) *interpolPos) *_multiplyDimension);
         }
 
         colorPos = colorPosition(t/maxT.value);
@@ -462,13 +477,18 @@ class BcbcScreen {
             interpolG = c2.g +(c3.g-c2.g) * mixratio;
             interpolB = c2.b +(c3.b-c2.b) * mixratio;
         }
-        if (dash > 0.0) dashed = true;
+
+        if (dashD < 1.0) {dash = 0;}
+        else {dash = dashD.floor();}
 
         if ((mixratio != prevmix) || (nextLine) || (gapsRatio.value < 0.95) || (gapsRatio.value > 1.1)) {
           if (lineInProgress) _ctx2d.stroke();
           _ctx2d.setStrokeColorRgb(interpolR.toInt(), interpolG.toInt(), interpolB.toInt(), 1.0);
           _ctx2d.lineWidth = lineWidth;
-          if (dashed) _ctx2d.setLineDash(<int>[dash,3*dash]);
+
+          if (dash > 0) {_ctx2d.setLineDash(<int>[dash,3*dash]);}
+          else {_ctx2d.setLineDash([]);}
+
           prevmix = mixratio;
           nextLine = false;
           _ctx2d.beginPath();
@@ -500,11 +520,6 @@ class BcbcScreen {
     if (bzr.value != bzrInit) bzr.tween(AnimateDouble.EASE_IN_OUT, bzrInit, frames);
     if (gapsRatio.value != gapsRatioInit) gapsRatio.tween(AnimateDouble.EASE_IN_OUT, gapsRatioInit, frames);
 
-    if (capsStyle != capsStyleInit) {
-      _ctx2d.lineCap = capsStyleInit;
-      capsStyle = "selected";
-    }
-
     if ((c1.r != c1rInit) || (c1.g != c1gInit) || (c1.b != c1bInit)) c1.tween(ColorController.EASE_IN_OUT, c1rInit, c1gInit, c1bInit, frames);
     if ((c2.r != c2rInit) || (c2.g != c2gInit) || (c2.b != c2bInit)) c2.tween(ColorController.EASE_IN_OUT, c2rInit, c2gInit, c2bInit, frames);
     if ((c3.r != c3rInit) || (c3.g != c3gInit) || (c3.b != c3bInit)) c3.tween(ColorController.EASE_IN_OUT, c3rInit, c3gInit, c3bInit, frames);
@@ -524,90 +539,204 @@ class BcbcScreen {
     if (flipH.value != flipHInit) flipH.tween(AnimateDouble.EASE_IN_OUT, flipHInit, frames);
     if (flipV.value != flipVInit) flipV.tween(AnimateDouble.EASE_IN_OUT, flipVInit, frames);
     if (explode.value != explodeInit) explode.tween(AnimateDouble.EASE_IN_OUT, explodeInit, frames);
+    transitions.value = 1.0;
+    transitions.tween(AnimateDouble.LINEAR, frames.toDouble(), frames);
+    transitionsMidPassed = false;
+  }
 
-    // if (.value != Init) .tween(AnimateDouble.EASE_IN_OUT, Init, frames);
+  bool isBack() {
+    bool ret = true;
+    if (aParam.value != aParamInit) ret = false;
+    if (bParam.value != bParamInit) ret = false;
+    if (cParam.value != cParamInit) ret = false;
+    if (lw1.value != lwInit) ret = false;
+    if (lw2.value != lwInit) ret = false;
+    if (lw3.value != lwInit) ret = false;
+    if (stepT.value != stepTInit) ret = false;
+    if (maxT.value != maxTInit) ret = false;
+    if (beginT.value != beginTInit) ret = false;
+    return ret;
+  }
+
+  void transitionsMiddle() {
+    if (capsStyle != capsStyleTarget) {
+      _ctx2d.lineCap = capsStyleTarget;
+      capsStyle = "selected";
+    }
   }
 
   String importVars(String impStr) {
     String retMessage = "";
     const splitter = LineSplitter();
-    int frames = 600;
-    final vars = splitter.convert(impStr);
-    if (vars.length == 35) {
-      double? aParamTarget = double.tryParse(vars[1]);
+    varsIndex = 0;
+    vars = splitter.convert(impStr);
+    if (vars.length >= 35) {
+      if (vars[2] == "BCBC2") {
+        varsIndex = 2;
+        final f = int.tryParse(vars[0]);
+        final m = vars[1];
+        if ((f != null) && ((m == AnimateDouble.EASE_IN_OUT) || (m == AnimateDouble.EASE_IN) || (m == AnimateDouble.EASE_OUT)
+            || (m == AnimateDouble.LINEAR) || (m == AnimateDouble.STROBE))) {
+          retMessage = importOne(f.toInt(), m);
+        }
+        else {
+          if ((m != AnimateDouble.EASE_IN_OUT) && (m != AnimateDouble.EASE_IN) && (m != AnimateDouble.EASE_OUT)
+              && (m != AnimateDouble.LINEAR) && (m != AnimateDouble.STROBE)) {retMessage = "wrong begining\nno mode found";}
+          else if (f == null) {retMessage = "wrong begining\nno frames found";}
+        }
+      }
+      else if (vars[0] == "BCBC2") {
+        retMessage = importOne(600, AnimateDouble.EASE_IN_OUT);
+      }
+      else {
+        retMessage = "wrong begining\nmissing line\nBCBC2";
+      }
+    }
+    else {
+      retMessage = "wrong import length";
+    }
+    return retMessage;
+  }
+
+  String importNext() {
+    String retMessage = "";
+    varsIndex += 35;
+    if (vars.length >= 35+varsIndex) {
+      if (vars[2+varsIndex] == "BCBC2") {
+        final f = int.tryParse(vars[0+varsIndex]);
+        final m = vars[1+varsIndex];
+        varsIndex += 2;
+        if ((f != null) && ((m == AnimateDouble.EASE_IN_OUT) || (m == AnimateDouble.EASE_IN) || (m == AnimateDouble.EASE_OUT)
+            || (m == AnimateDouble.LINEAR) || (m == AnimateDouble.STROBE))) {
+          retMessage = importOne(f.toInt(), m);
+        }
+        else {
+          if ((m != AnimateDouble.EASE_IN_OUT) && (m != AnimateDouble.EASE_IN) && (m != AnimateDouble.EASE_OUT)
+              && (m != AnimateDouble.LINEAR) && (m != AnimateDouble.STROBE)) {retMessage = "wrong begining\nno mode found";}
+          else if (f == null) {retMessage = "wrong begining\nno frames found";}
+        }
+      }
+      else if (vars[0+varsIndex] == "BCBC2") {
+        retMessage = importOne(600, AnimateDouble.EASE_IN_OUT);
+      }
+      else {
+        retMessage = "wrong begining\nmissing line\nBCBC2";
+      }
+    }
+    else {
+      if (vars.length == varsIndex) {retMessage = "";}
+      else {
+        if (vars[varsIndex] == "loop") {
+          varsIndex = 0;
+          if (vars[2+varsIndex] == "BCBC2") {
+            final f = int.tryParse(vars[0+varsIndex]);
+            final m = vars[1+varsIndex];
+            varsIndex += 2;
+            if ((f != null) && ((m == AnimateDouble.EASE_IN_OUT) || (m == AnimateDouble.EASE_IN) || (m == AnimateDouble.EASE_OUT)
+                || (m == AnimateDouble.LINEAR) || (m == AnimateDouble.STROBE))) {
+              retMessage = importOne(f.toInt(), m);
+            }
+            else {
+              if ((m != AnimateDouble.EASE_IN_OUT) && (m != AnimateDouble.EASE_IN) && (m != AnimateDouble.EASE_OUT)
+                  && (m != AnimateDouble.LINEAR) && (m != AnimateDouble.STROBE)) {retMessage = "wrong begining\nno mode found";}
+              else if (f == null) {retMessage = "wrong begining\nno frames found";}
+            }
+          }
+          else if (vars[0+varsIndex] == "BCBC2") {
+            retMessage = importOne(600, AnimateDouble.EASE_IN_OUT);
+          }
+        }
+        else {
+          retMessage = "wrong import length";
+        }
+      }
+    }
+    return retMessage;
+  }
+
+
+  String importOne(int frames, String mode) {
+    String retMessage = "";
+    if (vars.length >= 35+varsIndex) {
+      double? aParamTarget = double.tryParse(vars[1+varsIndex]);
       if ((aParamTarget! < aParam.mini) || (aParamTarget > aParam.maxi)) retMessage = "aParam out of range";
-      double? bParamTarget = double.tryParse(vars[2]);
+      double? bParamTarget = double.tryParse(vars[2+varsIndex]);
       if ((bParamTarget! < bParam.mini) || (bParamTarget > bParam.maxi)) retMessage = "bParam out of range";
-      double? cParamTarget = double.tryParse(vars[3]);
+      double? cParamTarget = double.tryParse(vars[3+varsIndex]);
       if ((cParamTarget! < cParam.mini) || (cParamTarget > cParam.maxi)) retMessage = "cParam out of range";
 
-      double? beginTTarget = double.tryParse(vars[4]);
+      double? beginTTarget = double.tryParse(vars[4+varsIndex]);
       if ((beginTTarget! < beginT.mini) || (beginTTarget > beginT.maxi)) retMessage = "beginT out of range";
-      double? maxTTarget = double.tryParse(vars[5]);
+      double? maxTTarget = double.tryParse(vars[5+varsIndex]);
       if ((maxTTarget! < maxT.mini) || (maxTTarget > maxT.maxi)) retMessage = "maxT out of range";
-      double? stepTTarget = double.tryParse(vars[6]);
+      double? stepTTarget = double.tryParse(vars[6+varsIndex]);
       if ((stepTTarget! < stepT.mini) || (stepTTarget > stepT.maxi)) retMessage = "stepT out of range";
 
-      double? lw1Target = double.tryParse(vars[7]);
+      double? lw1Target = double.tryParse(vars[7+varsIndex]);
       if ((lw1Target! < lw1.mini) || (lw1Target > lw1.maxi)) retMessage = "lw1 out of range";
-      double? lw2Target = double.tryParse(vars[8]);
+      double? lw2Target = double.tryParse(vars[8+varsIndex]);
       if ((lw2Target! < lw2.mini) || (lw2Target > lw2.maxi)) retMessage = "lw2 out of range";
-      double? lw3Target = double.tryParse(vars[9]);
+      double? lw3Target = double.tryParse(vars[9+varsIndex]);
       if ((lw3Target! < lw3.mini) || (lw3Target > lw3.maxi)) retMessage = "lw3 out of range";
-      double? dash1Target = double.tryParse(vars[10]);
+      double? dash1Target = double.tryParse(vars[10+varsIndex]);
       if ((dash1Target! < dash1.mini) || (dash1Target > dash1.maxi)) retMessage = "dash1 out of range";
-      double? dash2Target = double.tryParse(vars[11]);
+      double? dash2Target = double.tryParse(vars[11+varsIndex]);
       if ((dash2Target! < dash2.mini) || (dash2Target > dash2.maxi)) retMessage = "dash2 out of range";
-      double? dash3Target = double.tryParse(vars[12]);
+      double? dash3Target = double.tryParse(vars[12+varsIndex]);
       if ((dash3Target! < dash3.mini) || (dash3Target > dash3.maxi)) retMessage = "dash3 out of range";
-      int? c1Target = int.tryParse(vars[13]);
+      int? c1Target = int.tryParse(vars[13+varsIndex]);
       if ((c1Target! < 0) || (c1Target > 16777216)) retMessage = "c1 out of range";
-      int? c2Target = int.tryParse(vars[14]);
+      int? c2Target = int.tryParse(vars[14+varsIndex]);
       if ((c2Target! < 0) || (c2Target > 16777216)) retMessage = "c2 out of range";
-      int? c3Target = int.tryParse(vars[15]);
+      int? c3Target = int.tryParse(vars[15+varsIndex]);
       if ((c3Target! < 0) || (c3Target > 16777216)) retMessage = "c3 out of range";
 
-      double? gradientTarget = double.tryParse(vars[16]);
+      double? gradientTarget = double.tryParse(vars[16+varsIndex]);
       if ((gradientTarget! < gradient.mini) || (gradientTarget > gradient.maxi)) retMessage = "gradient out of range";
-      double? pivotTarget = double.tryParse(vars[17]);
+      double? pivotTarget = double.tryParse(vars[17+varsIndex]);
       if ((pivotTarget! < pivot.mini) || (pivotTarget > pivot.maxi)) retMessage = "pivot out of range";
-      double? distribTarget = double.tryParse(vars[18]);
+      double? distribTarget = double.tryParse(vars[18+varsIndex]);
       if ((distribTarget! < distrib.mini) || (distribTarget > distrib.maxi)) retMessage = "distrib out of range";
-      double? bzrTarget = double.tryParse(vars[19]);
+      double? bzrTarget = double.tryParse(vars[19+varsIndex]);
       if ((bzrTarget! < bzr.mini) || (bzrTarget > bzr.maxi)) retMessage = "bzr out of range";
 
-      String capsStyleTarget = vars[20];
+      capsStyleTarget = vars[20+varsIndex];
       if ((capsStyleTarget != "butt") && (capsStyleTarget != "round") && (capsStyleTarget != "square")) retMessage = "capsStyle out of range";
 
-      double? gapsRatioTarget = double.tryParse(vars[21]);
+      double? gapsRatioTarget = double.tryParse(vars[21+varsIndex]);
       if ((gapsRatioTarget! < gapsRatio.mini) || (gapsRatioTarget > gapsRatio.maxi)) retMessage = "gapsRatio out of range";
-      double? splitHnumberTarget = double.tryParse(vars[22]);
+      double? splitHnumberTarget = double.tryParse(vars[22+varsIndex]);
       if ((splitHnumberTarget! < splitHnumber.mini) || (splitHnumberTarget > splitHnumber.maxi)) retMessage = "splitHnumber out of range";
-      double? splitHwidthTarget = double.tryParse(vars[23]);
+      double? splitHwidthTarget = double.tryParse(vars[23+varsIndex]);
       if ((splitHwidthTarget! < splitHwidth.mini) || (splitHwidthTarget > splitHwidth.maxi)) retMessage = "splitHwidth out of range";
-      double? splitVnumberTarget = double.tryParse(vars[24]);
+      double? splitVnumberTarget = double.tryParse(vars[24+varsIndex]);
       if ((splitVnumberTarget! < splitVnumber.mini) || (splitVnumberTarget > splitVnumber.maxi)) retMessage = "splitVnumber out of range";
-      double? splitVheightTarget = double.tryParse(vars[25]);
+      double? splitVheightTarget = double.tryParse(vars[25+varsIndex]);
       if ((splitVheightTarget! < splitVheight.mini) || (splitVheightTarget > splitVheight.maxi)) retMessage = "splitVheight out of range";
-      double? splitQuincTarget = double.tryParse(vars[26]);
+      double? splitQuincTarget = double.tryParse(vars[26+varsIndex]);
       if ((splitQuincTarget! < splitQuinc.mini) || (splitQuincTarget > splitQuinc.maxi)) retMessage = "splitQuinc out of range";
-      double? flipHTarget = double.tryParse(vars[27]);
+      double? flipHTarget = double.tryParse(vars[27+varsIndex]);
       if ((flipHTarget! < flipH.mini) || (flipHTarget > flipH.maxi)) retMessage = "flipH out of range";
-      double? flipVTarget = double.tryParse(vars[28]);
+      double? flipVTarget = double.tryParse(vars[28+varsIndex]);
       if ((flipVTarget! < flipV.mini) || (flipVTarget > flipV.maxi)) retMessage = "flipV out of range";
-      double? explodeTarget = double.tryParse(vars[29]);
+      double? explodeTarget = double.tryParse(vars[29+varsIndex]);
       if ((explodeTarget! < explode.mini) || (explodeTarget > explode.maxi)) retMessage = "explode out of range";
 
-      double? zoomTarget = double.tryParse(vars[30]);
+      double? zoomTarget = double.tryParse(vars[30+varsIndex]);
       if ((zoomTarget! < zoom.mini) || (zoomTarget > zoom.maxi)) retMessage = "zoom out of range";
-      double? xOrigineTarget = double.tryParse(vars[31]);
+      double? xOrigineTarget = double.tryParse(vars[31+varsIndex]);
       if ((xOrigineTarget! < xOrigine.mini) || (xOrigineTarget > xOrigine.maxi)) retMessage = "xOrigine out of range";
-      double? yOrigineTarget = double.tryParse(vars[32]);
+      double? yOrigineTarget = double.tryParse(vars[32+varsIndex]);
       if ((yOrigineTarget! < yOrigine.mini) || (yOrigineTarget > yOrigine.maxi)) retMessage = "yOrigine out of range";
-      double? rotationTarget = double.tryParse(vars[33]);
+      double? rotationTarget = double.tryParse(vars[33+varsIndex]);
       if ((rotationTarget! < rotation.mini) || (rotationTarget > rotation.maxi)) retMessage = "rotation out of range";
+      if (vars[34+varsIndex] != "***") retMessage = "wrong end of vars";
 
       if (retMessage == "") {
+        // juste avant l'import si le split est à 1 il faut repartir sur un autre tableau explode vide
+        if (splitVnumber.value == 1.0) explodeY = [];
+        if (splitHnumber.value == 1.0) explodeX = [];
+
         int l = ((splitHnumberTarget + 1) * splitVnumberTarget).round();
         if (explodeX.length < l) {
           for (int i=explodeX.length; i<l; i++) {
@@ -616,25 +745,20 @@ class BcbcScreen {
           }
         }
 
-        if (aParam.value != aParamTarget) aParam.tween(AnimateDouble.EASE_IN_OUT, aParamTarget, frames);
-        if (bParam.value != bParamTarget) bParam.tween(AnimateDouble.EASE_IN_OUT, bParamTarget, frames);
-        if (cParam.value != cParamTarget) cParam.tween(AnimateDouble.EASE_IN_OUT, cParamTarget, frames);
-        if (lw1.value != lw1Target) lw1.tween(AnimateDouble.EASE_IN_OUT, lw1Target, frames);
-        if (lw2.value != lw2Target) lw2.tween(AnimateDouble.EASE_IN_OUT, lw2Target, frames);
-        if (lw3.value != lw3Target) lw3.tween(AnimateDouble.EASE_IN_OUT, lw3Target, frames);
-        if (dash1.value != dash1Target) dash1.tween(AnimateDouble.EASE_IN_OUT, dash1Target, frames);
-        if (dash2.value != dash2Target) dash2.tween(AnimateDouble.EASE_IN_OUT, dash2Target, frames);
-        if (dash3.value != dash3Target) dash3.tween(AnimateDouble.EASE_IN_OUT, dash3Target, frames);
-        if (stepT.value != stepTTarget) stepT.tween(AnimateDouble.EASE_IN_OUT, stepTTarget, frames);
-        if (maxT.value != maxTTarget) maxT.tween(AnimateDouble.EASE_IN_OUT, maxTTarget, frames);
-        if (beginT.value != beginTTarget) beginT.tween(AnimateDouble.EASE_IN_OUT, beginTTarget, frames);
-        if (bzr.value != bzrTarget) bzr.tween(AnimateDouble.EASE_IN_OUT, bzrTarget, frames);
-        if (gapsRatio.value != gapsRatioTarget) gapsRatio.tween(AnimateDouble.EASE_IN_OUT, gapsRatioTarget, frames);
-
-        if (capsStyle != capsStyleTarget) {
-          _ctx2d.lineCap = capsStyleTarget;
-          capsStyle = "selected";
-        }
+        if (aParam.value != aParamTarget) aParam.tween(mode, aParamTarget, frames);
+        if (bParam.value != bParamTarget) bParam.tween(mode, bParamTarget, frames);
+        if (cParam.value != cParamTarget) cParam.tween(mode, cParamTarget, frames);
+        if (lw1.value != lw1Target) lw1.tween(mode, lw1Target, frames);
+        if (lw2.value != lw2Target) lw2.tween(mode, lw2Target, frames);
+        if (lw3.value != lw3Target) lw3.tween(mode, lw3Target, frames);
+        if (dash1.value != dash1Target) dash1.tween(mode, dash1Target, frames);
+        if (dash2.value != dash2Target) dash2.tween(mode, dash2Target, frames);
+        if (dash3.value != dash3Target) dash3.tween(mode, dash3Target, frames);
+        if (stepT.value != stepTTarget) stepT.tween(mode, stepTTarget, frames);
+        if (maxT.value != maxTTarget) maxT.tween(mode, maxTTarget, frames);
+        if (beginT.value != beginTTarget) beginT.tween(mode, beginTTarget, frames);
+        if (bzr.value != bzrTarget) bzr.tween(mode, bzrTarget, frames);
+        if (gapsRatio.value != gapsRatioTarget) gapsRatio.tween(mode, gapsRatioTarget, frames);
 
         int c1rTarget = (c1Target >> 16) & 0xFF;
         int c1gTarget = (c1Target >>  8) & 0xFF;
@@ -650,21 +774,25 @@ class BcbcScreen {
         if ((c2.r != c2rTarget) || (c2.g != c2gTarget) || (c2.b != c2bTarget)) c2.tween(ColorController.EASE_IN_OUT, c2rTarget, c2gTarget, c2bTarget, frames);
         if ((c3.r != c3rTarget) || (c3.g != c3gTarget) || (c3.b != c3bTarget)) c3.tween(ColorController.EASE_IN_OUT, c3rTarget, c3gTarget, c3bTarget, frames);
 
-        if (distrib.value != distribTarget) distrib.tween(AnimateDouble.EASE_IN_OUT, distribTarget, frames);
-        if (pivot.value != pivotTarget) pivot.tween(AnimateDouble.EASE_IN_OUT, pivotTarget, frames);
-        if (gradient.value != gradientTarget) gradient.tween(AnimateDouble.EASE_IN_OUT, gradientTarget, frames);
-        if (zoom.value != zoomTarget) zoom.tween(AnimateDouble.EASE_IN_OUT, zoomTarget, frames);
-        if (xOrigine.value != xOrigineTarget) xOrigine.tween(AnimateDouble.EASE_IN_OUT, xOrigineTarget, frames);
-        if (yOrigine.value != yOrigineTarget) yOrigine.tween(AnimateDouble.EASE_IN_OUT, yOrigineTarget, frames);
-        if (rotation.value != rotationTarget) rotation.tween(AnimateDouble.EASE_IN_OUT, rotationTarget, frames);
-        if (splitHnumber.value != splitHnumberTarget) splitHnumber.tween(AnimateDouble.EASE_IN_OUT, splitHnumberTarget, frames);
-        if (splitHwidth.value != splitHwidthTarget) splitHwidth.tween(AnimateDouble.EASE_IN_OUT, splitHwidthTarget, frames);
-        if (splitVnumber.value != splitVnumberTarget) splitVnumber.tween(AnimateDouble.EASE_IN_OUT, splitVnumberTarget, frames);
-        if (splitVheight.value != splitVheightTarget) splitVheight.tween(AnimateDouble.EASE_IN_OUT, splitVheightTarget, frames);
-        if (splitQuinc.value != splitQuincTarget) splitQuinc.tween(AnimateDouble.EASE_IN_OUT, splitQuincTarget, frames);
-        if (flipH.value != flipHTarget) flipH.tween(AnimateDouble.EASE_IN_OUT, flipHTarget, frames);
-        if (flipV.value != flipVTarget) flipV.tween(AnimateDouble.EASE_IN_OUT, flipVTarget, frames);
-        if (explode.value != explodeTarget) explode.tween(AnimateDouble.EASE_IN_OUT, explodeTarget, frames);
+        if (distrib.value != distribTarget) distrib.tween(mode, distribTarget, frames);
+        if (pivot.value != pivotTarget) pivot.tween(mode, pivotTarget, frames);
+        if (gradient.value != gradientTarget) gradient.tween(mode, gradientTarget, frames);
+        if (zoom.value != zoomTarget) zoom.tween(mode, zoomTarget, frames);
+        if (xOrigine.value != xOrigineTarget) xOrigine.tween(mode, xOrigineTarget, frames);
+        if (yOrigine.value != yOrigineTarget) yOrigine.tween(mode, yOrigineTarget, frames);
+        if (rotation.value != rotationTarget) rotation.tween(mode, rotationTarget, frames);
+        if (splitHnumber.value != splitHnumberTarget) splitHnumber.tween(mode, splitHnumberTarget, frames);
+        if (splitHwidth.value != splitHwidthTarget) splitHwidth.tween(mode, splitHwidthTarget, frames);
+        if (splitVnumber.value != splitVnumberTarget) splitVnumber.tween(mode, splitVnumberTarget, frames);
+        if (splitVheight.value != splitVheightTarget) splitVheight.tween(mode, splitVheightTarget, frames);
+        if (splitQuinc.value != splitQuincTarget) splitQuinc.tween(mode, splitQuincTarget, frames);
+        if (flipH.value != flipHTarget) flipH.tween(mode, flipHTarget, frames);
+        if (flipV.value != flipVTarget) flipV.tween(mode, flipVTarget, frames);
+        if (explode.value != explodeTarget) explode.tween(mode, explodeTarget, frames);
+
+        transitions.value = 1.0;
+        transitions.tween(AnimateDouble.LINEAR, frames.toDouble(), frames);
+        transitionsMidPassed = false;
 
         retMessage = "";
       }
@@ -1063,6 +1191,10 @@ class BcbcScreen {
       CustomEvent e = event as CustomEvent;
       if (e.detail) { bzr.tween(AnimateDouble.EASE_IN_OUT, 0.0, 30); }
     });
+    window.on['lineConc'].listen((event) {
+      CustomEvent e = event as CustomEvent;
+      if (e.detail) { bzr.tween(AnimateDouble.EASE_IN_OUT, 0.0 - bzrInit, 30); }
+    });
     window.on['capsRound'].listen((event) {
       CustomEvent e = event as CustomEvent;
       if (e.detail) { _ctx2d.lineCap = "round"; capsStyle = "selected"; }
@@ -1099,7 +1231,10 @@ class BcbcScreen {
     });
     window.on['splitHorzDown'].listen((event) {
       CustomEvent e = event as CustomEvent;
-      if (e.detail) { splitHnumber.tween(AnimateDouble.EASE_IN_OUT, splitHnumber.value - 1, 30); }
+      if (e.detail) {
+        if (splitHnumber.value == 2.0) explodeX = [];
+        splitHnumber.tween(AnimateDouble.EASE_IN_OUT, splitHnumber.value - 1, 30);
+      }
     });
     window.on['splitVertUp'].listen((event) {
       CustomEvent e = event as CustomEvent;
@@ -1116,7 +1251,10 @@ class BcbcScreen {
     });
     window.on['splitVertDown'].listen((event) {
       CustomEvent e = event as CustomEvent;
-      if (e.detail) { splitVnumber.tween(AnimateDouble.EASE_IN_OUT, splitVnumber.value - 1, 30); }
+      if (e.detail) {
+        if (splitVnumber.value == 2.0) explodeY = [];
+        splitVnumber.tween(AnimateDouble.EASE_IN_OUT, splitVnumber.value - 1, 30);
+      }
     });
     window.on['splitWidthUp'].listen((event) {
       CustomEvent e = event as CustomEvent;

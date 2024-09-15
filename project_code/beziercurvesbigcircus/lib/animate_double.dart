@@ -16,11 +16,15 @@ class AnimateDouble {
   static const BREAK_DOWN = "breakDown";
   static const BREAK_UP = "breakUp";
   static const EASE_IN_OUT = "easeInOut";
+  static const EASE_IN = "easeIn";
+  static const EASE_OUT = "easeOut";
+  static const LINEAR = "linear";
   static const LINEAR_FACT = 0.001;
   static const EXP_FACT = 0.0001;
   static const CONSTANT_UP = "constantUp";
   static const CONSTANT_DOWN = "constantDown";
   static const SELECTED = "selected";
+  static const STROBE = "strobe";
   static double velocityExp = 1;
   static double velocityLin = 1;
   late Timer _timer;
@@ -35,36 +39,64 @@ class AnimateDouble {
   void update() {
     switch (_mode) {
       case LINEAR_UP :   _value = min(_maxi, _value + _step);
-      _step = min((1+(velocityLin/10)) *_step, 0.05*(_maxi - _value));
-      break;
+        _step = min((1+(velocityLin/10)) *_step, 0.05*(_maxi - _value));
+        break;
       case LINEAR_DOWN : _value = max(_mini, _value - _step);
-      _step = min((1+(velocityLin/10)) *_step, 0.05*(_value - _mini));
-      break;
+        _step = min((1+(velocityLin/10)) *_step, 0.05*(_value - _mini));
+        break;
       case EXP_UP :   _value = min(_maxi, _value + _step);
-      _step = min((1+(velocityExp/10)) *_step, 0.05*(_maxi - _value));
-      break;
+        _step = min((1+(velocityExp/10)) *_step, 0.05*(_maxi - _value));
+        break;
       case EXP_DOWN : _value = max(_mini, _value - _step);
-      _step = min((1+(velocityExp/10))*_step, 0.05*(_value - _mini));
-      break;
+        _step = min((1+(velocityExp/10))*_step, 0.05*(_value - _mini));
+        break;
       case CONSTANT_UP : if ((_cyclic) && (_value > _maxi -_step)) _value -= _maxi -_mini;
-      _value = min(_maxi, _value + _step);
-      break;
+        _value = min(_maxi, _value + _step);
+        break;
       case CONSTANT_DOWN : if ((_cyclic) && (_value < _mini +_step)) _value += _maxi -_mini;
-      _value = max(_mini, _value - _step);
-      break;
+        _value = max(_mini, _value - _step);
+        break;
       case BREAK_UP : _value = min(_maxi, _value + _step);
-      _step *= 0.9;
-      break;
+        _step *= 0.9;
+        break;
       case BREAK_DOWN : _value = max(_mini, _value - _step);
-      _step *= 0.9;
-      break;
+        _step *= 0.9;
+        break;
       case EASE_IN_OUT : _value = _valueTarget - (_valueGap *(1-easeInOut(_t/_tFinal)));
-      _t++;
-      if (_t > _tFinal) {
-        _mode = "";
-        _value = _valueTarget;
-      }
-      break;
+        _t++;
+        if (_t > _tFinal) {
+          _mode = "";
+          _value = _valueTarget;
+        }
+        break;
+      case EASE_IN : _value = _valueTarget - (_valueGap *(1-easeIn(_t/_tFinal)));
+        _t++;
+        if (_t > _tFinal) {
+          _mode = "";
+          _value = _valueTarget;
+        }
+        break;
+      case EASE_OUT : _value = _valueTarget - (_valueGap *(1-easeOut(_t/_tFinal)));
+        _t++;
+        if (_t > _tFinal) {
+          _mode = "";
+          _value = _valueTarget;
+        }
+        break;
+      case LINEAR : _value = _valueTarget - (_valueGap *(1-(_t/_tFinal)));
+        _t++;
+        if (_t > _tFinal) {
+          _mode = "";
+          _value = _valueTarget;
+        }
+        break;
+      case STROBE :
+        int dixieme = (10*_t/_tFinal).ceil();
+        int decimal = (((1000*_t/_tFinal)%1000)%10).round();
+        _t++;
+        if (decimal < dixieme) {_value = _valueTarget;}
+        else {_value = _valueTarget - _valueGap;}
+        break;
     }
   }
 
@@ -107,7 +139,15 @@ class AnimateDouble {
     return (atan(6*a -3) +1.25) /2.5;
   }
 
-  String get prompt => ((_value*1000).round()/1000).toString();
+  double easeIn(double a) {
+    return pow(a, 2).toDouble();
+  }
+
+  double easeOut(double a) {
+    return sqrt(a);
+  }
+
+  String get prompt => (max(min((_value*1000).round()/1000,_maxi),_mini)).toString();
   double get value => _value;
   set value(double v) {_value = v;}
   int get valueInt => _value.floor();
@@ -117,4 +157,5 @@ class AnimateDouble {
   double get maxi => _maxi;
   bool get moving => ((_mode != "") && (_mode != SELECTED));
   bool get selected => (_mode == SELECTED);
+  int get percent => (100*(_value - _mini) / (_valueTarget - _mini)).floor().abs();
 }

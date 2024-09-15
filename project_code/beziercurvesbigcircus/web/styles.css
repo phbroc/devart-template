@@ -51,9 +51,6 @@ p {
   background-color: #555;
   display: inline-block;
   margin: 0.4em;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -72,9 +69,6 @@ p {
   float: left;
   font-size: 0.8em;
   display: block;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -112,21 +106,20 @@ p {
 
 
 .squareBtn {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
   font-family: Arial, sans-serif;
   color: #ffffff;
-  background: #999;
+  background-color: #999;
   padding: 4px;
   text-decoration: none;
   border: 0;
   width: 2.6em;
   height: 2.3em;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
+}
+
+.highlight {
+  background-color: darkorange !important;
 }
 
 .panelBtn {
@@ -150,6 +143,23 @@ p {
 .squareBtn:hover {
   background: #bbb;
   text-decoration: none;
+}
+
+#reqFs {
+  margin-top: 16px;
+  margin-right: 16px;
+  display: block;
+  position: relative;
+  float:right;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  background-color: #333;
+  padding: 2px;
+  border: 1px solid #bbbbbb;
+  width: 32px;
+  height: 32px;
+  color: white;
+  /*user-select: none;*/
 }
 
 #splitHeightDown>span ,#splitHeightUp>span {
@@ -189,6 +199,11 @@ p.clear {
   display: inline-block;
   width: 16em;
   font-family: 'Homenaje', sans-serif;
+}
+
+#importArea, #exportArea {
+  position: relative;
+  z-index: 2;
 }
 
 #snapshot {
